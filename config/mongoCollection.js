@@ -1,16 +1,20 @@
+<<<<<<< HEAD
 import dbConnection from './mongoConnection.js';
+=======
+import { dbConnection } from './mongoConnection.js';
+>>>>>>> main
 
-const getCollectionFn = (collectionName) => {
+const getCollectionFn = (collection) => {
   let _col = undefined;
 
   return async () => {
     if (!_col) {
       const db = await dbConnection();
-      _col = await db.collection(collectionName);
+      _col = await db.collection(collection);
     }
-
     return _col;
   };
 };
 
+// Note: You will need to change the code below to have the collection required by the assignment!
 export const users = getCollectionFn('users');
