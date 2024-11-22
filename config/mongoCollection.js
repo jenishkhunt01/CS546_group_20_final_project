@@ -1,4 +1,4 @@
-import dbConnection from './mongoConnection';
+import dbConnection from './mongoConnection.js';
 
 const getCollectionFn = (collectionName) => {
   let _col = undefined;
