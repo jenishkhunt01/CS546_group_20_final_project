@@ -151,4 +151,8 @@ router.get("/", ensureAuthenticated, (req, res) => {
   res.render("dashboard", { title: "Dashboard", user: req.session.user });
 });
 
+router.get("/rideSearch", ensureAuthenticated, (req, res) => {
+  res.render("rideSearch", { title: "Ride Search", user: req.session.user });
+});
+
 export default router;

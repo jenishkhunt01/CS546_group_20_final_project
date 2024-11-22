@@ -556,6 +556,7 @@ video {
 
 .container {
   width: 100%;
+  
 }
 
 @media (min-width: 640px) {
@@ -846,4 +847,25 @@ video {
 .focus\:ring-blue-500:focus {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(59 130 246 / var(--tw-ring-opacity, 1));
+}
+
+/* html,
+body {
+  height: 100%;
+} */
+
+/* html,body{
+  height: 100vh;
+} */
+
+.h-full{
+  height: 100vh;
+}
+
+.footer{
+  position:  absolute ;
+  bottom: 0px;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
 }
