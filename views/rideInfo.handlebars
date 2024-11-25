@@ -1,4 +1,3 @@
-<!-- TODO: postedBy, car, available seats, price, driver info w/ ratings and reviews, request ride -->
 <main>
 	<script>
 		document.title = "Ride Info";
@@ -18,6 +17,9 @@
 
 			<dt>To</dt>
 			<dd>{{ride.destination}}</dd>
+
+			<dt>Available seats</dt>
+			<dd>{{ride.car.availableSeats}}</dd>
 
 			<dt>Price (per seat)</dt>
 			<dd>`${{ride.price}}`</dd>
