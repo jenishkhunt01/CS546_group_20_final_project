@@ -1,0 +1,33 @@
+<!-- TODO: postedBy, car, available seats, price, driver info w/ ratings and reviews, request ride -->
+<main>
+	<script>
+		document.title = "Ride Info";
+	</script>
+	<h1 class="text-2xl font-bold text-blue-600 mb-6">Ride Info</h1>
+
+	<section>
+		<dl>
+			<dt>Car</dt>
+			<dd>{{ride.car.name}}</dd>
+
+			<dt>License Plate No.</dt>
+			<dd>{{ride.car.plateNo}}</dd>
+
+			<dt>From</dt>
+			<dd>{{ride.rideFrom}}</dd>
+
+			<dt>To</dt>
+			<dd>{{ride.destination}}</dd>
+
+			<dt>Price (per seat)</dt>
+			<dd>`${{ride.price}}`</dd>
+
+			<dt>Cancelled</dt>
+			{{#if ride.isCancelled}}
+			<dd class="cancelled">Yes</dd>
+			{{else}}
+			<dd>No</dd>
+			{{/if}}
+		</dl>
+	</section>
+</main>

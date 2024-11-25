@@ -869,3 +869,7 @@ body {
   justify-content: center;
   align-items: center;
 }
+
+.cancelled {
+  color: #ff8800;
+}
