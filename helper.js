@@ -1,4 +1,5 @@
 import express from "express";
+import moment from "moment";
 
 function isValidEmail(email, varName) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -62,11 +63,46 @@ function isStringArray(strArr) {
   return true;
 }
 
+function isValidId(id) {
+  if (!id) throw new Error("You must provide an id to search for");
+  if (typeof id !== "string") throw new Error("Id must be a string");
+  if (id.trim().length === 0)
+    throw new Error("Id cannot be an empty string or just spaces");
+  id = id.trim();
+  if (!ObjectId.isValid(id)) throw new Error("invalid object ID");
+  return id;
+}
+
+function checkDate(date) {
+  if (!date) throw new Error("You must provide a date");
+  if (typeof date !== "string") throw new Error("Date must be a string");
+  if (date.trim().length === 0)
+    throw new Error("Date cannot be an empty string or just spaces");
+  date = date.trim();
+  if (!moment(date, "YYYY-MM-DD", true).isValid())
+    throw new Error("Invalid date format");
+  return date;
+}
+
+function checkTime(time) {
+  if (!time) throw new Error("You must provide a time");
+  if (typeof time !== "string") throw new Error("Time must be a string");
+  if (time.trim().length === 0)
+    throw new Error("Time cannot be an empty string or just spaces");
+  time = time.trim();
+  if (!moment(time, "HH:mm", true).isValid())
+    throw new Error("Invalid time format");
+  return time;
+}
+
 const validator = {
   isValidEmail,
   isValidPhoneNumber,
   checkString,
   isStringArray,
   isNumber,
+  isValidId,
+  checkDate,
+  checkTime,
 };
 export default validator;
