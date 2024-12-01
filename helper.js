@@ -95,6 +95,13 @@ function checkTime(time) {
   return time;
 }
 
+function checkNumber(number) {
+  number = parseInt(number);
+  if (typeof number !== "number") throw new Error("Number must be a number");
+  if (number < 0) throw new Error("Number must be a positive number");
+  return number;
+}
+
 const validator = {
   isValidEmail,
   isValidPhoneNumber,
@@ -104,5 +111,6 @@ const validator = {
   isValidId,
   checkDate,
   checkTime,
+  checkNumber,
 };
 export default validator;
