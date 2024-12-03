@@ -1,4 +1,4 @@
-<main>
+<main class="max-w-4x1 mx-auto bg-white shadow-md rounded-lg p-8">
 	<script>
 		document.title = "Ride Info";
 	</script>
@@ -6,30 +6,37 @@
 
 	<section>
 		<dl>
-			<dt>Car</dt>
-			<dd>{{ride.car.name}}</dd>
+			<dt>Date</dt>
+			<dd>{{ride.date}}</dd>
 
-			<dt>License Plate No.</dt>
-			<dd>{{ride.car.plateNo}}</dd>
+			<dt>Time</dt>
+			<dd>{{ride.time}}</dd>
+
+			<dt>Car type</dt>
+			<dd>{{ride.carType}}</dd>
 
 			<dt>From</dt>
-			<dd>{{ride.rideFrom}}</dd>
+			<dd>{{ride.startLocation}}</dd>
 
 			<dt>To</dt>
-			<dd>{{ride.destination}}</dd>
+			<dd>{{ride.endLocation}}</dd>
 
 			<dt>Available seats</dt>
-			<dd>{{ride.car.availableSeats}}</dd>
+			<dd>{{ride.seatsAvailable}}</dd>
 
 			<dt>Price (per seat)</dt>
 			<dd>`${{ride.price}}`</dd>
 
-			<dt>Cancelled</dt>
+			<dt>Cancelled?</dt>
 			{{#if ride.isCancelled}}
 			<dd class="cancelled">Yes</dd>
 			{{else}}
 			<dd>No</dd>
 			{{/if}}
+
+			<dt>Current riders</dt>
+
+			<dt>Waitlist</dt>
 		</dl>
 	</section>
 </main>
