@@ -91,6 +91,11 @@ router.post("/signup", async (req, res) => {
       username,
       email,
       password: hashedPassword,
+      rider_review: 0,
+      Driver_reviw: 0,
+      number_of_rides_taken: 0,
+      number_of_rides_given: 0,
+      number_of_reports_made: 0,
     });
     res.redirect("/login");
   } catch (e) {
@@ -151,8 +156,47 @@ router.get("/", ensureAuthenticated, (req, res) => {
   res.render("dashboard", { title: "Dashboard", user: req.session.user });
 });
 
-router.get("/rideSearch", ensureAuthenticated, (req, res) => {
-  res.render("rideSearch", { title: "Ride Search", user: req.session.user });
+// router.get("/rideSearch", ensureAuthenticated, (req, res) => {
+//   res.render("rideSearch", { title: "Ride Search", user: req.session.user });
+// });
+
+// router.get("/ridePost", ensureAuthenticated, (req, res) => {
+//   res.render("ridePost", { title: "Ride Post", user: req.session.user });
+// });
+
+router.get("/profile", async (req, res) => {
+  try {
+    // Assuming `req.session.user` contains the logged-in user's ID or username
+    const username = req.session.user.username;
+    const user = await usersData.findByUsername(username);
+
+    if (!user) {
+      return res
+        .status(404)
+        .render("error", { message: "User not found", title: "Error" });
+    }
+
+    // Pass the user data to the template
+    res.render("profile", {
+      title: "Profile",
+      user: {
+        name: user.firstname + " " + user.lastname,
+        phone: user.phone || "Not Provided",
+        email: user.email || "Not Provided",
+        username: user.username,
+        reviewsAsRider: user.reviewsAsRider || 0,
+        reviewsAsDriver: user.reviewsAsDriver || 0,
+        ridesTaken: user.ridesTaken || 0,
+        ridesGiven: user.ridesGiven || 0,
+        reportsMade: user.reportsMade || 0,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .render("error", { message: "Internal Server Error", title: "Error" });
+  }
 });
 
 export default router;

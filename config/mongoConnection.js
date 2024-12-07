@@ -1,8 +1,8 @@
-<<<<<<< HEAD
-import { MongoClient } from "mongodb";
-=======
+// <<<<<<< HEAD
+// import { MongoClient } from "mongodb";
+// =======
 import { MongoClient, ServerApiVersion } from "mongodb";
->>>>>>> main
+// >>>>>>> main
 import { mongoConfig as _mongoConfig } from "./settings.js";
 const mongoConfig = _mongoConfig;
 
@@ -25,12 +25,12 @@ const dbConnection = async () => {
   }
   return _db;
 };
-<<<<<<< HEAD
-=======
+// <<<<<<< HEAD
+// =======
 
 const closeConnection = async () => {
   await _connection.close();
 };
 
 export { dbConnection, closeConnection };
->>>>>>> main
+// >>>>>>> main

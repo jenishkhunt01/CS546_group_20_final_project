@@ -1,0 +1,26 @@
+<main class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-8">
+  <h1 class="text-2xl font-bold text-blue-600 mb-6">My Chats</h1>
+
+  {{#if chats.length}}
+    <ul class="space-y-6">
+      {{#each chats}}
+        <li class="border rounded-lg p-6">
+          <div class="mb-4">
+            <p class="font-bold">Chat with {{driver}}</p>
+            <p><strong>Ride:</strong> {{ride.origin}} ➔ {{ride.destination}}</p>
+            <p><strong>Date:</strong> {{ride.date}}</p>
+            <p><strong>Time:</strong> {{ride.time}}</p>
+          </div>
+          <a
+            href="/chat/session/{{chatId}}"
+            class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300"
+          >
+            Open Chat
+          </a>
+        </li>
+      {{/each}}
+    </ul>
+  {{else}}
+    <p class="text-gray-500">You currently have no active chats with drivers.</p>
+  {{/if}}
+</main>

@@ -327,6 +327,8 @@ textarea {
   /* 2 */
   padding: 0;
   /* 3 */
+  resize: none; /* Disable manual resizing */
+  overflow-y: hidden; 
 }
 
 /*
@@ -858,8 +860,9 @@ body {
   height: 100vh;
 } */
 
-.h-full{
-  height: 100vh;
+.min-height{
+  /* height: 100vh; */
+  min-height: 100vh;
 }
 
 .footer{
@@ -868,4 +871,15 @@ body {
   width: 100%;
   justify-content: center;
   align-items: center;
+}
+
+.profile-info{
+  width: 50%;
+
+}
+
+#chatBox {
+  scroll-behavior: smooth;
+  word-wrap: break-word; /* Ensure long words break to the next line */
+  white-space: pre-wrap; /* Preserve spacing and line breaks */
 }

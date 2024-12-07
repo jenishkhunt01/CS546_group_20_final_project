@@ -1,0 +1,42 @@
+<main class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-8">
+  <h1 class="text-2xl font-bold text-blue-600 mb-6">Requested Rides</h1>
+
+  {{#if requests.length}}
+    <ul class="space-y-6">
+      {{#each requests}}
+        <li class="border rounded-lg p-6">
+          <div class="mb-4">
+            <p><strong>Rider:</strong> {{rider}}</p>
+            <p><strong>Origin:</strong> {{origin}}</p>
+            <p><strong>Destination:</strong> {{destination}}</p>
+            <p><strong>Date:</strong> {{date}}</p>
+            <p><strong>Time:</strong> {{time}}</p>
+            <p><strong>Amount:</strong> ${{amount}}</p>
+          </div>
+          <div class="flex space-x-4">
+            <!-- Accept Button -->
+            <form action="/requestedRides/accept/{{rideId}}" method="POST">
+              <button
+                type="submit"
+                class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 transition duration-300"
+              >
+                Accept
+              </button>
+            </form>
+            <!-- Reject Button -->
+            <form action="/requestedRides/reject/{{rideId}}" method="POST">
+              <button
+                type="submit"
+                class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition duration-300"
+              >
+                Reject
+              </button>
+            </form>
+          </div>
+        </li>
+      {{/each}}
+    </ul>
+  {{else}}
+    <p class="text-gray-500">No ride requests at the moment.</p>
+  {{/if}}
+</main>

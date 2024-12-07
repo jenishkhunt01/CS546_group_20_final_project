@@ -1,49 +1,58 @@
 import express from "express";
-import configRoutes from "./Routes/index.js";
-import bodyParser from "body-parser";
-import exphbs from "express-handlebars";
+import http from "http";
+import { Server } from "socket.io";
 import session from "express-session";
-import isAuthenticated from "./middleware/authMiddleware.js";
+import exphbs from "express-handlebars";
+import path from "path";
+import constructorMethods from "./Routes/index.js";
+import cron from "node-cron";
+import { chatCleanup } from "./Routes/utils/chatCleanup.js";
+
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
-const rewriteUnsupportedBrowserMethods = (req, res, next) => {
-  if (req.body && req.body._method) {
-    req.method = req.body._method;
-    delete req.body._method;
-  }
-  next();
-};
-
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
-    name: "AuthCookie", // Custom name for the session cookie
-    secret: process.env.SESSION_SECRET, // Secret key for signing the session ID
-    resave: false, // Prevent session from being saved if it wasn't modified
-    saveUninitialized: false, // Do not save empty sessions
-    cookie: { maxAge: 600000 }, // Set cookie expiration time (10 minutes)
+    name: "AuthCookie",
+    secret: "your_session_secret", // Replace with your own secret
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 600000 }, // 10 minutes
   })
 );
 
-app.use(express.json());
-app.use(bodyParser.json());
-app.use("/public", express.static("public"));
-app.use(express.urlencoded({ extended: true }));
-app.use(rewriteUnsupportedBrowserMethods);
+// Set up the view engine
+// const hbs = exphbs.create({ defaultLayout: "main" });
 
-app.engine("handlebars", exphbs.engine({ defaultLayout: "main" }));
-app.set("view engine", "handlebars");
-
-app.use((req, res, next) => {
-  if (req.path === "/login" || req.path === "/signup") {
-    return next();
-  }
-  return isAuthenticated(req, res, next);
+const hbs = exphbs.create({
+  helpers: {
+    json: (context) => JSON.stringify(context), // Define JSON.stringify helper
+  },
+  defaultLayout: "main",
+  layoutsDir: path.join(path.resolve(), "views", "layouts"),
+  partialsDir: [path.join(path.resolve(), "views", "partials")],
 });
 
+cron.schedule("* * * * *", async () => {
+  console.log("Running daily chat cleanup...");
+  await chatCleanup();
+});
 
-configRoutes(app);
+app.engine("handlebars", hbs.engine);
+app.set("view engine", "handlebars");
+app.set("views", path.join(path.resolve(), "views"));
 
-app.listen(3000, () => {
-  console.log("We've now got a server!");
-  console.log("Your routes will be running on http://localhost:3000");
+// Serve static files
+app.use("/public", express.static(path.join(path.resolve(), "public")));
+
+constructorMethods(app);
+
+// Start the server
+const PORT = 3000;
+server.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });

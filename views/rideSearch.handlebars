@@ -1,7 +1,7 @@
 <main class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-8">
   <h1 class="text-2xl font-bold text-blue-600 mb-6">Search for a Ride</h1>
 
-  <form id="rideSearchForm" action="/searchRide" method="POST" class="space-y-4">
+  <form id="rideSearchForm" action="/rideSearch" method="POST" class="space-y-6">
     <!-- Starting Location -->
     <div>
       <label for="startLocation" class="block text-gray-700 font-medium mb-2">Starting Location</label>
@@ -12,7 +12,7 @@
         required
         onchange="updateEndLocationOptions()"
       >
-        <option value="">Select a starting location</option>
+        <option value="" disabled selected>Select a starting location</option>
         <option value="New York City">New York City</option>
         <option value="Boston">Boston</option>
         <option value="Hoboken">Hoboken</option>
@@ -27,8 +27,9 @@
         name="endLocation"
         class="w-full border border-gray-300 rounded-lg p-2"
         required
+        onchange="updateStartLocationOptions()"
       >
-        <option value="">Select an ending location</option>
+        <option value="" disabled selected>Select an ending location</option>
         <option value="New York City">New York City</option>
         <option value="Boston">Boston</option>
         <option value="Hoboken">Hoboken</option>
@@ -47,16 +48,21 @@
       />
     </div>
 
-    <!-- Time -->
+    <!-- Number of Seats Required -->
     <div>
-      <label for="time" class="block text-gray-700 font-medium mb-2">Time</label>
-      <input
-        type="time"
-        id="time"
-        name="time"
+      <label for="seatsRequired" class="block text-gray-700 font-medium mb-2">Number of Seats Required</label>
+      <select
+        id="seatsRequired"
+        name="seatsRequired"
         class="w-full border border-gray-300 rounded-lg p-2"
         required
-      />
+      >
+        <option value="" disabled selected>Select seats</option>
+        <option value="1">1 Seat</option>
+        <option value="2">2 Seats</option>
+        <option value="3">3 Seats</option>
+        <option value="4">4 Seats</option>
+      </select>
     </div>
 
     <!-- Submit Button -->
@@ -70,3 +76,34 @@
     </div>
   </form>
 </main>
+
+<script>
+  // Set the minimum date to today
+  document.getElementById('date').min = new Date().toISOString().split('T')[0];
+
+  // Disable the selected origin city in the destination dropdown
+  function updateEndLocationOptions() {
+    const startLocation = document.getElementById('startLocation').value;
+    const endLocation = document.getElementById('endLocation');
+    Array.from(endLocation.options).forEach((option) => {
+      if (option.value === startLocation) {
+        option.disabled = true;
+      } else {
+        option.disabled = false;
+      }
+    });
+  }
+
+  // Disable the selected destination city in the origin dropdown
+  function updateStartLocationOptions() {
+    const endLocation = document.getElementById('endLocation').value;
+    const startLocation = document.getElementById('startLocation');
+    Array.from(startLocation.options).forEach((option) => {
+      if (option.value === endLocation) {
+        option.disabled = true;
+      } else {
+        option.disabled = false;
+      }
+    });
+  }
+</script>
