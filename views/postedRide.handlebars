@@ -1,0 +1,30 @@
+<main class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-8">
+  <h1 class="text-2xl font-bold text-blue-600 mb-6">My Posted Rides</h1>
+
+  {{#if postedChats.length}}
+    <ul class="space-y-6">
+      {{#each postedChats}}
+        <li class="border rounded-lg p-6">
+          <div class="mb-4">
+            <p class="font-bold">{{ride.origin}} ➔ {{ride.destination}}</p>
+            <p>Date: {{ride.date}}</p>
+            <p>Time: {{ride.time}}</p>
+            <p>Seats Available: {{ride.seats}}</p>
+            <p>Amount per Seat: ${{ride.amount}}</p>
+          </div>
+          <div class="border-t pt-4">
+            <h3 class="font-bold text-lg mb-2">Chat with {{rider}}</h3>
+            <a
+  href="/chat/session/{{chatId}}"
+  class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300"
+>
+  Open Chat
+</a>
+          </div>
+        </li>
+      {{/each}}
+    </ul>
+  {{else}}
+    <p class="text-gray-500">You have not posted any rides or received chats yet.</p>
+  {{/if}}
+</main>

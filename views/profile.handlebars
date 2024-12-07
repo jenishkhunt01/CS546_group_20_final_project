@@ -1,0 +1,60 @@
+<main class="max-w-screen-sm mx-auto bg-white shadow-md rounded-lg p-8">
+  <h1 class="text-3xl font-bold text-blue-600 mb-6">Profile</h1>
+
+  <!-- User Details Section -->
+  <section class="profile-info">
+    <div class="flex flex-row justify-between max-w-32 align-middle items-center border-b border-black py-4 ">
+      <h2 class="text-lg font-medium text-gray-700">Name</h2>
+      <p class="text-gray-600">{{user.name}}</p>
+    </div>
+    <div class="flex flex-row justify-between max-w-32 align-middle items-center border-b py-4">
+      <h2 class="text-lg font-medium text-gray-700">Phone Number</h2>
+      <p class="text-gray-600">{{user.phone}}</p>
+    </div>
+    <div class="flex flex-row justify-between max-w-32 align-middle items-center border-b py-4">
+      <h2 class="text-lg font-medium text-gray-700">Email</h2>
+      <p class="text-gray-600">{{user.email}}</p>
+    </div>
+    <div class="flex flex-row justify-between max-w-32 align-middle items-center border-b p-4">
+      <h2 class="text-lg font-medium text-gray-700">Username</h2>
+      <p class="text-gray-600">{{user.username}}</p>
+    </div>
+  </section>
+
+  <!-- User Statistics Section -->
+  <section class="mt-8 space-y-6">
+    <!-- Reviews -->
+    <div class="bg-gray-100 p-4 rounded-lg shadow-sm">
+      <h2 class="text-xl font-semibold text-blue-500 mb-4">Reviews</h2>
+      <div class="flex flex-row justify-between">
+        <div class="flex flex-col items-center">
+          <h3 class="text-gray-700 font-medium">As Rider</h3>
+          <p class="text-blue-600 text-lg font-bold">{{user.reviewsRider}}/5</p>
+        </div>
+        <div class="flex flex-col items-center">
+          <h3 class="text-gray-700 font-medium">As Driver</h3>
+          <p class="text-blue-600 text-lg font-bold">{{user.reviewsDriver}}/5</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Other Statistics -->
+    <div class="bg-gray-100 p-4 rounded-lg shadow-sm">
+      <h2 class="text-xl font-semibold text-blue-500 mb-4">Statistics</h2>
+      <div class="space-y-4">
+        <div class="flex flex-row justify-between">
+          <h3 class="text-gray-700 font-medium">Number of Rides Taken</h3>
+          <p class="text-gray-600 font-semibold">{{user.ridesTaken}}</p>
+        </div>
+        <div class="flex flex-row justify-between">
+          <h3 class="text-gray-700 font-medium">Number of Driving Rides Given</h3>
+          <p class="text-gray-600 font-semibold">{{user.ridesGiven}}</p>
+        </div>
+        <div class="flex flex-row justify-between">
+          <h3 class="text-gray-700 font-medium">Number of Reports Made</h3>
+          <p class="text-gray-600 font-semibold">{{user.reportsMade}}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
