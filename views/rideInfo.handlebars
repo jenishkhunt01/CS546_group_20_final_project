@@ -34,6 +34,16 @@
 			<dd>No</dd>
 			{{/if}}
 
+			<dt>Riders</dt>
+			{{#each ride.ridersList}}
+			<dd>{{this}}</dd>
+			{{/each}}
+
+			<dt>Waitlist</dt>
+			{{#each ride.waitList}}
+			<dd>{{this}}</dd>
+			{{/each}}
+
 			<dt>Current riders</dt>
 
 			<dt>Waitlist</dt>
