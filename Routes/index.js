@@ -1,10 +1,27 @@
 import authRoutes from "./auth.js";
 import rideRoutes from "./rides.js";
+import ridePost from "./ridePost.js";
+import rideSearch from "./rideSearch.js";
+import chatRoutes from "./chat.js";
+import postedRides from "./postedRides.js";
+import riderChats from "./riderChats.js";
 import { static as staticDir } from "express";
-const constructorMethods = (app) => {
+import rideRequestRoutes from "./rideRequest.js";
+import requestedRidesRoutes from "./requestedRides.js";
+
+const constructorMethods = (app, io) => {
   app.use("/", authRoutes);
-  app.use("/", rideRoutes);
+  // console.log("Registering /ridePost route");
+  app.use("/ridePost", ridePost);
+  app.use("/rideSearch", rideSearch);
+  app.use("/chat", chatRoutes);
+  app.use("/riderChats", riderChats);
+  app.use("/rideRequest", rideRequestRoutes);
+  app.use("/requestedRides", requestedRidesRoutes);
+  app.use("/postedRides", postedRides);
+
   app.use("/public", staticDir("public"));
+
   app.use("*", (req, res) => {
     res.redirect("/");
   });

@@ -13,5 +13,10 @@ const getCollectionFn = (collection) => {
 };
 
 // Note: You will need to change the code below to have the collection required by the assignment!
-export const users = getCollectionFn('users');
+export const users = getCollectionFn("users");
+export const ridePost = getCollectionFn("ridePost");
+export const chatSessions = getCollectionFn("chat");
+export const rideRequests = getCollectionFn("rideRequest");
+export const rideHistory = getCollectionFn("rideHistory");
+
 export const ride = getCollectionFn('ride');

@@ -11,7 +11,6 @@ function isValidEmail(email, varName) {
   if (email.length === 0)
     throw `Error: ${varName} cannot be an empty string or string with just spaces`;
 
-  // Throw an error if email does not match the regex
   if (!emailRegex.test(email)) {
     throw `Error: ${email} is not a valid ${varName}`;
   }
