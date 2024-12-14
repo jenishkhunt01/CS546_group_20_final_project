@@ -55,7 +55,6 @@ router.get("/", ensureAuthenticated, async (req, res) => {
 
         const canCancel = rideStartTime.diff(currentTime, "hour") > 12;
 
-
         if (!request.confirmationEmailSent) {
           const driverDetails = await usersData.findByUsername(request.driver);
           const riderDetails = await usersData.findByUsername(request.rider);

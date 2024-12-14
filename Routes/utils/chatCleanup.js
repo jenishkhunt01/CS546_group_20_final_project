@@ -15,18 +15,13 @@ export const chatCleanup = async () => {
     const rideHistoryCollection = await rideHistory();
     const rideRequestsCollection = await rideRequests();
 
-
     const ridesToArchive = await ridePostCollection
       .find({
-        $or: [
-          { date: { $lt: currentDate.toISOString().split("T")[0] } },
-          // { status: { $in: ["completed", "cancelled"] } },
-        ],
+        date: { $lt: currentDate.toISOString().split("T")[0] },
       })
       .toArray();
 
     if (ridesToArchive.length > 0) {
-     
       const archivedRides = ridesToArchive.map((ride) => ({
         origin: ride.origin,
         destination: ride.destination,
@@ -38,13 +33,11 @@ export const chatCleanup = async () => {
         driver: ride.driver,
         rider: ride.rider,
         createdAt: ride.createdAt,
-        archivedAt: currentDate, // Timestamp for archival
+        archivedAt: currentDate,
       }));
 
-      // Insert archived rides into rideHistory
       await rideHistoryCollection.insertMany(archivedRides);
 
-      // Remove the rides from ridePost after archival
       const rideIdsToCleanup = ridesToArchive.map((ride) =>
         ride._id.toString()
       );
@@ -64,17 +57,12 @@ export const chatCleanup = async () => {
       console.log("No rides to archive or clean up.");
     }
 
-    // ---------------------------
-    // Step 2: Check orphaned chatSessions and rideRequests
-    // ---------------------------
-    // Iterate through all chatSessions
     const allChatSessions = await chatSessionCollection.find({}).toArray();
     for (const session of allChatSessions) {
       const rideExists = await ridePostCollection.findOne({
         _id: new ObjectId(session.rideId),
       });
       if (!rideExists) {
-        // Delete orphaned chat session
         await chatSessionCollection.deleteOne({ _id: session._id });
         console.log(
           `Deleted orphaned chat session with rideId: ${session.rideId}`
@@ -82,14 +70,12 @@ export const chatCleanup = async () => {
       }
     }
 
-    // Iterate through all rideRequests
     const allRideRequests = await rideRequestsCollection.find({}).toArray();
     for (const request of allRideRequests) {
       const rideExists = await ridePostCollection.findOne({
         _id: new ObjectId(request.rideId),
       });
       if (!rideExists) {
-        // Delete orphaned ride request
         await rideRequestsCollection.deleteOne({ _id: request._id });
         console.log(
           `Deleted orphaned ride request with rideId: ${request.rideId}`
