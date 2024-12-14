@@ -3,6 +3,7 @@ import validator from "../helper.js"; // Ensure helper.js exists and has necessa
 import bcrypt from "bcrypt";
 import usersData from "../data/users.js";
 import isAuthenticated from "../middleware/authMiddleware.js";
+import {rideData} from "../data/rides,js";
 
 const router = express.Router();
 
@@ -154,6 +155,13 @@ router.get("/", ensureAuthenticated, (req, res) => {
 
 router.get("/rideSearch", ensureAuthenticated, (req, res) => {
   res.render("rideSearch", { title: "Ride Search", user: req.session.user });
+});
+
+router.get("/rideInfo", ensureAuthenticated, (req, res) => {
+  res.render("rideInfo", {
+    title: "Ride Info",
+    ride: rideData.getRide(req.params.id)
+  });
 });
 
 export default router;
