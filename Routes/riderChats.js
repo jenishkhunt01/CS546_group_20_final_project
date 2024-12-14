@@ -1,10 +1,9 @@
 import express from "express";
-import { chatSessions, ridePost } from "../config/mongoCollection.js";
+import { chatSessions, ridePost, users } from "../config/mongoCollection.js";
 import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
-// Ensure the user is authenticated
 const ensureAuthenticated = (req, res, next) => {
   if (req.session?.user) {
     next();
@@ -13,39 +12,57 @@ const ensureAuthenticated = (req, res, next) => {
   }
 };
 
-// Route to display all chats for the rider
 router.get("/", ensureAuthenticated, async (req, res) => {
   try {
-    const user = req.session.user;
+    const user = req.session.user; 
     const chatSessionCollection = await chatSessions();
     const ridePostCollection = await ridePost();
+    const userCollection = await users();
 
-    // Fetch all chat sessions where the user is the rider
-    const chats = await chatSessionCollection.find({ rider: user.username }).toArray();
+    const chats = await chatSessionCollection
+      .find({ rider: user.username })
+      .toArray();
 
-    const riderChats = [];
-
-    // Get ride details for each chat session
-    for (const chat of chats) {
-      const ride = await ridePostCollection.findOne({
-        _id: new ObjectId(chat.rideId),
-      });
-
-      if (ride) {
-        riderChats.push({
-          chatId: chat._id.toString(),
-          driver: chat.driver, // Driver's username
-          ride: {
-            origin: ride.origin,
-            destination: ride.destination,
-            date: ride.date,
-            time: ride.time,
-          },
+    const riderChats = await Promise.all(
+      chats.map(async (chat) => {
+        const ride = await ridePostCollection.findOne({
+          _id: new ObjectId(chat.rideId),
         });
-      }
-    }
 
-    res.render("riderChats", { chats: riderChats });
+        if (!ride) {
+          console.warn(`Ride not found for rideId: ${chat.rideId}`);
+          return null;
+        }
+
+        const driver = await userCollection.findOne({
+          username: ride.driverId,
+        });
+
+        if (!driver) {
+          console.warn(`Driver not found for driverId: ${ride.driverId}`);
+          return null; 
+        }
+
+        return {
+          chatId: chat._id.toString(),
+          driver: driver.username, 
+          ride: {
+            origin: ride.origin || "Unknown",
+            destination: ride.destination || "Unknown",
+            date: ride.date || "Unknown",
+            time: ride.time || "Unknown",
+            seats: ride.seats || "Not Available",
+            amount: ride.amount || "Not Available",
+            driverPhone: driver.phone || "Not Available",
+            driverEmail: driver.email || "Not Available",
+          },
+        };
+      })
+    );
+
+    const filteredChats = riderChats.filter((chat) => chat !== null);
+
+    res.render("riderChats", { chats: filteredChats });
   } catch (err) {
     console.error("Error fetching rider chats:", err);
     res.status(500).render("error", {

@@ -1,8 +1,11 @@
 import express from "express";
-import { ridePost } from "../config/mongoCollection.js";
+import { ridePost, users } from "../config/mongoCollection.js";
+import { ObjectId } from "mongodb";
+import dayjs from "dayjs";
 
 const router = express.Router();
 
+// Ensure the user is authenticated
 const ensureAuthenticated = (req, res, next) => {
   if (req.session && req.session.user) {
     next();
@@ -17,41 +20,69 @@ router.get("/", ensureAuthenticated, (req, res) => {
 
 router.post("/", ensureAuthenticated, async (req, res) => {
   try {
-    const { date, seatsRequired } = req.body;
-    const user = req.session.user; // Get the logged-in user's information
+    const { startLocation, endLocation, date, time, seatsRequired } = req.body;
+    const user = req.session.user;
 
-    // Validate input
-    if (!date || !seatsRequired) {
+    if (!startLocation || !endLocation || !date || !time || !seatsRequired) {
       return res.status(400).render("error", {
-        message: "Date and number of seats are required!",
+        message: "All fields are required.",
       });
     }
 
-    const ridePostCollection = await ridePost();
+    // Validate the time format (HH:mm)
 
-    // Fetch rides that match the selected date and have enough seats available,
-    // excluding rides posted by the logged-in user
+    const riderTime = dayjs(`${date} ${time}`, "YYYY-MM-DD HH:mm", true);
+    if (!riderTime.isValid()) {
+      return res.status(400).render("error", {
+        message: "Invalid date or time.",
+      });
+    }
+
+    // Create a one-hour time window around the requested time
+    const timeLowerBound = riderTime.subtract(1, "hour").format("HH:mm");
+    const timeUpperBound = riderTime.add(1, "hour").format("HH:mm");
+
+    const ridePostCollection = await ridePost();
+    const usersCollection = await users();
+
     const availableRides = await ridePostCollection
       .find({
         isAvailable: true,
-        date, // Match the same date
-        seats: { $gte: parseInt(seatsRequired) }, // Seats greater than or equal to seatsRequired
-        driverId: { $ne: user.username }, // Exclude rides posted by the logged-in user
+        date,
+        seats: { $gte: parseInt(seatsRequired) },
+        origin: startLocation,
+        destination: endLocation,
+        driverId: { $ne: user.username },
+        time,
+        time: { $gte: timeLowerBound, $lte: timeUpperBound },
       })
       .toArray();
 
-    if (availableRides.length === 0) {
-      return res.render("rides", {
-        title: "Available Rides",
-        hasRides: false,
-        rides: [],
-      });
-    }
+    const ridesWithDetails = await Promise.all(
+      availableRides.map(async (ride) => {
+        const driver = await usersCollection.findOne({
+          username: ride.driverId,
+        });
+        return {
+          rideId: ride._id.toString(),
+          origin: ride.origin,
+          destination: ride.destination,
+          date: ride.date,
+          time: ride.time,
+          seats: ride.seats,
+          amount: ride.amount,
+          driverName: driver
+            ? `${driver.firstname} ${driver.lastname}`
+            : "Unknown",
+          carType: ride.carType,
+        };
+      })
+    );
 
     res.render("rides", {
       title: "Available Rides",
-      hasRides: true,
-      rides: availableRides,
+      hasRides: ridesWithDetails.length > 0,
+      rides: ridesWithDetails,
     });
   } catch (error) {
     console.error("Error during ride search:", error);

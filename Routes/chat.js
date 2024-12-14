@@ -5,7 +5,7 @@ import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
-// Serve the chat page and initialize the session
+
 router.get("/:rideId", async (req, res) => {
   try {
     const rideId = req.params.rideId;
@@ -30,14 +30,14 @@ router.get("/:rideId", async (req, res) => {
 
     const chatSessionCollection = await chatSessions();
 
-    // Check if a chat session already exists between this rider and the driver
+    
     let chatSession = await chatSessionCollection.findOne({
       rideId,
       rider: user.username,
     });
 
     if (!chatSession) {
-      // Create a new chat session if none exists
+
       const newChatSession = await chatSessionCollection.insertOne({
         rideId,
         driver: ride.driverId,
@@ -53,20 +53,20 @@ router.get("/:rideId", async (req, res) => {
 
     const rideRequestsCollection = await rideRequests();
 
-    // Check if the rider has already requested the ride
+   
     const existingRequest = await rideRequestsCollection.findOne({
       rideId,
       rider: user.username,
     });
 
-    // Render the chat page
+
     res.render("chat", {
       chatId: chatSession._id.toString(),
       driverUsername: ride.driverId,
       riderUsername: user.username,
       chat: chatSession,
-      user, // Pass the user object to the template
-      requestExists: !!existingRequest, // Pass a flag indicating if a request exists
+      user, 
+      requestExists: !!existingRequest, 
     });
   } catch (err) {
     console.error("Error during chat initialization:", err);
@@ -76,7 +76,6 @@ router.get("/:rideId", async (req, res) => {
   }
 });
 
-// Serve the chat page for a specific chat session (Driver or Rider)
 router.get("/session/:chatId", async (req, res) => {
   try {
     const chatId = req.params.chatId;
@@ -99,7 +98,7 @@ router.get("/session/:chatId", async (req, res) => {
       });
     }
 
-    // Ensure the user is either the driver or the rider in the chat
+
     if (
       chatSession.driver !== user.username &&
       chatSession.rider !== user.username
@@ -109,13 +108,13 @@ router.get("/session/:chatId", async (req, res) => {
       });
     }
 
-    // Render the chat page
+ 
     res.render("chat", {
       chatId: chatSession._id.toString(),
       driverUsername: chatSession.driver,
       riderUsername: chatSession.rider,
       chat: chatSession,
-      user, // Pass the user object to the template
+      user, 
     });
   } catch (err) {
     console.error("Error during chat initialization:", err);
@@ -125,7 +124,7 @@ router.get("/session/:chatId", async (req, res) => {
   }
 });
 
-// Route to send a message
+
 router.post("/send/:chatId", async (req, res) => {
   try {
     const chatId = req.params.chatId;
@@ -162,7 +161,7 @@ router.post("/send/:chatId", async (req, res) => {
   }
 });
 
-// Route to fetch messages
+
 router.get("/messages/:chatId", async (req, res) => {
   try {
     const chatId = req.params.chatId;

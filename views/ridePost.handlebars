@@ -1,16 +1,10 @@
-<main class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-8">
-  <h1 class="text-3xl font-bold text-blue-600 mb-6">Post a Ride</h1>
+<main class="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-8">
+  <h1 class="text-3xl font-bold text-blue-600 mb-8 text-center">Post a Ride</h1>
+  
   <form id="ridePostForm" action="/ridePost/post" method="POST" class="space-y-6">
-    <!-- Origin -->
     <div>
-      <label for="ridePostOrigin" class="block text-gray-700 font-medium mb-2">Origin</label>
-      <select
-        id="ridePostOrigin"
-        name="origin"
-        class="block w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        required
-        onchange="updateDestinationOptions()"
-      >
+      <label for="ridePostOrigin" class="block text-lg font-medium text-gray-700 mb-2">Origin</label>
+      <select id="ridePostOrigin" name="origin" required>
         <option value="" disabled selected>Choose your starting location</option>
         <option value="New York City">New York City</option>
         <option value="Boston">Boston</option>
@@ -18,16 +12,9 @@
       </select>
     </div>
 
-    <!-- Destination -->
     <div>
-      <label for="ridePostDestination" class="block text-gray-700 font-medium mb-2">Destination</label>
-      <select
-        id="ridePostDestination"
-        name="destination"
-        class="block w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        required
-        onchange="updateOriginOptions()"
-      >
+      <label for="ridePostDestination">Destination</label>
+      <select id="ridePostDestination" name="destination" required>
         <option value="" disabled selected>Choose your destination</option>
         <option value="New York City">New York City</option>
         <option value="Boston">Boston</option>
@@ -35,65 +22,49 @@
       </select>
     </div>
 
-    <!-- Date -->
     <div>
-      <label for="ridePostDate" class="block text-gray-700 font-medium mb-2">Date</label>
-      <input
-        type="date"
-        id="ridePostDate"
-        name="date"
-        class="block w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        required
-      />
+      <label for="ridePostDate">Date</label>
+      <input type="date" id="ridePostDate" name="date" required />
     </div>
 
-    <!-- Time -->
     <div>
-      <label for="ridePostTime" class="block text-gray-700 font-medium mb-2">Time</label>
-      <input
-        type="time"
-        id="ridePostTime"
-        name="time"
-        class="block w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        required
-      />
+      <label for="ridePostTime">Time</label>
+      <input type="time" id="ridePostTime" name="time" required />
     </div>
 
-    <!-- Number of Seats -->
     <div>
-      <label for="ridePostSeats" class="block text-gray-700 font-medium mb-2">Number of Seats Available</label>
-      <select
-        id="ridePostSeats"
-        name="seats"
-        class="block w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        required
-      >
-        <option value="" disabled selected>Select seats</option>
-        <option value="1">1 Seat</option>
-        <option value="2">2 Seats</option>
-        <option value="3">3 Seats</option>
-        <option value="4">4 Seats</option>
+      <label for="carType" class="block text-lg font-medium text-gray-700 mb-2">Car Type</label>
+      <select id="carType" name="carType" onchange="updateSeatsOptions()" required>
+        <option value="" disabled selected>Select car type</option>
+        <option value="Sedan">Sedan (4 seats)</option>
+        <option value="SUV">SUV (6 seats)</option>
+        <option value="Minivan">Minivan (7 seats)</option>
       </select>
     </div>
 
-    <!-- Amount -->
     <div>
-      <label for="ridePostAmount" class="block text-gray-700 font-medium mb-2">Amount per Seat ($)</label>
+      <label for="ridePostSeats" class="block text-lg font-medium text-gray-700 mb-2">Number of Seats Available</label>
+      <select id="ridePostSeats" name="seats" required>
+        <option value="" disabled selected>Select seats</option>
+      </select>
+    </div>
+
+    <div>
+      <label for="ridePostAmount" class="block text-lg font-medium text-gray-700 mb-2">Amount ($)</label>
       <input
         type="number"
         id="ridePostAmount"
         name="amount"
-        class="block w-full border border-gray-300 rounded-lg py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        class="block w-full border border-gray-300 rounded-lg py-2 px-3 text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         min="1"
         required
       />
     </div>
 
-    <!-- Submit Button -->
     <div>
       <button
         type="submit"
-        class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300"
+        class="w-full bg-blue-500 text-white py-3 px-4 rounded-lg hover:bg-blue-600 transition duration-300 text-lg"
       >
         Post Ride
       </button>
@@ -102,10 +73,14 @@
 </main>
 
 <script>
-  // Set the minimum date to today
+  const carTypeSeats = {
+    Sedan: 4,
+    SUV: 6,
+    Minivan: 7,
+  };
+
   document.getElementById('ridePostDate').min = new Date().toISOString().split('T')[0];
 
-  // Disable the selected origin city in the destination dropdown
   function updateDestinationOptions() {
     const origin = document.getElementById('ridePostOrigin').value;
     const destination = document.getElementById('ridePostDestination');
@@ -118,7 +93,6 @@
     });
   }
 
-  // Disable the selected destination city in the origin dropdown
   function updateOriginOptions() {
     const destination = document.getElementById('ridePostDestination').value;
     const origin = document.getElementById('ridePostOrigin');
@@ -129,5 +103,20 @@
         option.disabled = false;
       }
     });
+  }
+
+  function updateSeatsOptions() {
+    const carType = document.getElementById("carType").value;
+    const seatSelect = document.getElementById("ridePostSeats");
+    seatSelect.innerHTML = ""; 
+
+    if (carTypeSeats[carType]) {
+      for (let i = 1; i < carTypeSeats[carType]; i++) {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = `${i} Seat${i > 1 ? "s" : ""}`;
+        seatSelect.appendChild(option);
+      }
+    }
   }
 </script>

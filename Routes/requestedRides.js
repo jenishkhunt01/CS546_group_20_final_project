@@ -1,10 +1,13 @@
 import express from "express";
-import { rideRequests, ridePost } from "../config/mongoCollection.js";
+import {
+  rideRequests,
+  ridePost,
+  chatSessions,
+} from "../config/mongoCollection.js";
 import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
-// Ensure the user is authenticated
 const ensureAuthenticated = (req, res, next) => {
   if (req.session?.user) {
     next();
@@ -13,19 +16,18 @@ const ensureAuthenticated = (req, res, next) => {
   }
 };
 
-// Route to display requested rides for the driver
 router.get("/", ensureAuthenticated, async (req, res) => {
   try {
     const user = req.session.user;
     const rideRequestsCollection = await rideRequests();
     const ridePostCollection = await ridePost();
 
-    // Fetch all requests for rides posted by the driver
     const requests = await rideRequestsCollection
-      .find({ driver: user.username })
+      .find({
+        $or: [{ driver: user.username }, { rider: user.username }],
+      })
       .toArray();
 
-    // Fetch ride details for each request
     const requestsWithRideDetails = await Promise.all(
       requests.map(async (request) => {
         const ride = await ridePostCollection.findOne({
@@ -33,13 +35,17 @@ router.get("/", ensureAuthenticated, async (req, res) => {
         });
 
         return {
+          requestId: request._id.toString(),
           rideId: request.rideId,
+          role: request.driver === user.username ? "Driver" : "Rider",
           rider: request.rider,
+          driver: request.driver,
           origin: ride?.origin || "Unknown",
           destination: ride?.destination || "Unknown",
           date: ride?.date || "Unknown",
           time: ride?.time || "Unknown",
           amount: ride?.amount || "Unknown",
+          status: request.status, 
         };
       })
     );
@@ -56,21 +62,45 @@ router.get("/", ensureAuthenticated, async (req, res) => {
 });
 
 // Accept a ride request
-router.post("/accept/:rideId", ensureAuthenticated, async (req, res) => {
+router.post("/accept/:requestId", ensureAuthenticated, async (req, res) => {
   try {
-    const { rideId } = req.params;
+    const { requestId } = req.params;
     const user = req.session.user;
 
     const rideRequestsCollection = await rideRequests();
+    const ridePostCollection = await ridePost();
+
+    // Fetch the request to get rideId
+    const request = await rideRequestsCollection.findOne({
+      _id: new ObjectId(requestId),
+      driver: user.username,
+    });
+
+    if (!request) {
+      return res.status(404).render("error", {
+        message: "Ride request not found.",
+      });
+    }
 
     // Update the request status to accepted
     await rideRequestsCollection.updateOne(
-      { rideId, driver: user.username },
+      { _id: new ObjectId(requestId) },
       { $set: { status: "accepted" } }
     );
 
-    // Redirect to upcoming rides page
-    res.redirect("/upcomingRides");
+    // Update other pending requests for the same ride to waiting
+    await rideRequestsCollection.updateMany(
+      { rideId: request.rideId, _id: { $ne: new ObjectId(requestId) } },
+      { $set: { status: "waiting" } }
+    );
+
+    // Mark the ride as unavailable
+    await ridePostCollection.updateOne(
+      { _id: new ObjectId(request.rideId) },
+      { $set: { isAvailable: false } }
+    );
+
+    res.redirect("/requestedRides");
   } catch (err) {
     console.error("Error accepting ride request:", err);
     res.status(500).render("error", {
@@ -80,17 +110,28 @@ router.post("/accept/:rideId", ensureAuthenticated, async (req, res) => {
 });
 
 // Reject a ride request
-router.post("/reject/:rideId", ensureAuthenticated, async (req, res) => {
+router.post("/reject/:requestId", ensureAuthenticated, async (req, res) => {
   try {
-    const { rideId } = req.params;
+    const { requestId } = req.params;
     const user = req.session.user;
 
     const rideRequestsCollection = await rideRequests();
 
-    // Delete the request from the collection
-    await rideRequestsCollection.deleteOne({ rideId, driver: user.username });
+    // Fetch the ride request to get rideId
+    const request = await rideRequestsCollection.findOne({
+      _id: new ObjectId(requestId),
+      driver: user.username,
+    });
 
-    // Redirect back to the requested rides page
+    if (!request) {
+      return res.status(404).render("error", {
+        message: "Ride request not found.",
+      });
+    }
+
+    // Delete the request from the collection
+    await rideRequestsCollection.deleteOne({ _id: new ObjectId(requestId) });
+
     res.redirect("/requestedRides");
   } catch (err) {
     console.error("Error rejecting ride request:", err);

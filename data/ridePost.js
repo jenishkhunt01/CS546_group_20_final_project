@@ -9,6 +9,8 @@ async function addRidePost({
   time,
   seats,
   amount,
+  carType,
+  estimatedDuration,
 }) {
   const ridePostCollection = await ridePost();
   const newPost = {
@@ -19,9 +21,10 @@ async function addRidePost({
     time,
     seats,
     amount,
-     isAvailable: true,
+    isAvailable: true,
     createdAt: new Date(),
-    passengers: [], // Array to store passenger IDs
+    carType,
+    estimatedDuration: estimatedDuration,
   };
 
   const insertInfo = await ridePostCollection.insertOne(newPost);

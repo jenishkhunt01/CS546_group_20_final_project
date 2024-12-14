@@ -67,6 +67,16 @@ async function findByUsername(username) {
 const usersData = {
   addUser,
   findByUsername,
+  findByEmail,
 };
+
+async function findByEmail(email) {
+  if (!email) throw new Error("No email was provided");
+
+  const userCollection = await users();
+  const user = userCollection.findOne({ email });
+
+  return user;
+}
 
 export default usersData;

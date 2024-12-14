@@ -1,6 +1,10 @@
 import express from "express";
-import ridePostData from "../data/ridePost.js"; // Data layer for ridePost collection
-import validator from "../helper.js"; // Add your validation logic
+import ridePostData from "../data/ridePost.js"; 
+import validator from "../helper.js"; 
+import axios from "axios";
+import dotenv from "dotenv";
+
+dotenv.config(); 
 
 const router = express.Router();
 
@@ -18,16 +22,25 @@ router.get("/", ensureAuthenticated, (req, res) => {
 
 router.post("/post", ensureAuthenticated, async (req, res) => {
   try {
-    const { origin, destination, date, time, seats, amount } = req.body;
+    const { origin, destination, date, time, seats, amount, carType } =
+      req.body;
 
-    // Validation
-    if (!origin || !destination || !date || !time || !seats || !amount) {
+   
+    if (
+      !origin ||
+      !destination ||
+      !date ||
+      !time ||
+      !seats ||
+      !amount ||
+      !carType
+    ) {
       return res
         .status(400)
         .render("error", { message: "All fields are required!" });
     }
 
-    // Use a helper to validate inputs further if needed
+
     const validatedOrigin = validator.checkString(origin, "Origin");
     const validatedDestination = validator.checkString(
       destination,
@@ -44,19 +57,41 @@ router.post("/post", ensureAuthenticated, async (req, res) => {
 
     const driverId = req.session.user.username;
 
-    // Insert ride post
+
+    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+    const distanceMatrixUrl = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(
+      validatedOrigin
+    )}&destinations=${encodeURIComponent(validatedDestination)}&key=${apiKey}`;
+
+    let estimatedDuration = null;
+
+    try {
+      const response = await axios.get(distanceMatrixUrl);
+
+      if (response.data && response.data.rows[0].elements[0].status === "OK") {
+        estimatedDuration = response.data.rows[0].elements[0].duration.value; // Duration in seconds
+      } else {
+        console.warn("Unable to fetch estimated duration from Google API.");
+      }
+    } catch (apiError) {
+      console.error("Error fetching estimated duration:", apiError);
+    }
+
     const ridePost = await ridePostData.addRidePost({
-      driverId: driverId, // Assuming session stores user info
+      driverId: driverId,
       origin: validatedOrigin,
       destination: validatedDestination,
       date,
       time,
       seats: validatedSeats,
       amount: validatedAmount,
+      carType, 
+      estimatedDuration, 
     });
 
-    res.redirect(`/dashboard`); // Redirect to a dashboard or confirmation page
+    res.redirect(`/dashboard`);
   } catch (error) {
+    console.error("Error in ride post:", error);
     res.status(500).render("error", {
       message: "Unable to post ride. Please try again later.",
     });

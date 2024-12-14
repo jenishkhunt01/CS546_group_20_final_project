@@ -1,12 +1,11 @@
 import express from "express";
-import validator from "../helper.js"; // Ensure helper.js exists and has necessary functions
+import validator from "../helper.js";
 import bcrypt from "bcrypt";
 import usersData from "../data/users.js";
 import isAuthenticated from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Middleware to protect routes
 const ensureAuthenticated = (req, res, next) => {
   if (req.session && req.session.user) {
     next();
@@ -15,17 +14,13 @@ const ensureAuthenticated = (req, res, next) => {
   }
 };
 
-// Render signup page
 router.get("/signup", (req, res) => {
   res.render("signup", { title: "Sign Up" });
 });
 
-// Handle signup form submission
 router.post("/signup", async (req, res) => {
-  // console.log(req.body);
   let { firstname, lastname, phone, username, email, password } = req.body;
 
-  // Initial field presence check
   if (!firstname || !lastname || !phone || !username || !email || !password) {
     return res.status(400).render("error", {
       message: "All fields must be filled out.",
@@ -33,7 +28,6 @@ router.post("/signup", async (req, res) => {
     });
   }
 
-  // Validation checks
   let errors = [];
   try {
     firstname = validator.checkString(firstname, "First Name");
@@ -66,9 +60,12 @@ router.post("/signup", async (req, res) => {
     errors.push(e);
   }
 
-  // Check if username already exists (this should be asynchronous)
   if (await usersData.findByUsername(username)) {
     errors.push(`${username} already exists.`);
+  }
+
+  if (await usersData.findByEmail(email)) {
+    errors.push(`You already have a coount with Email: ${email}`);
   }
 
   if (errors.length > 0) {
@@ -79,10 +76,8 @@ router.post("/signup", async (req, res) => {
     });
   }
 
-  // Hash the password
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Attempt to add the user
   try {
     await usersData.addUser({
       firstname,
@@ -92,7 +87,9 @@ router.post("/signup", async (req, res) => {
       email,
       password: hashedPassword,
       rider_review: 0,
-      Driver_reviw: 0,
+      Driver_review: 0,
+      rider_review_count: 0,
+      Driver_review_count: 0,
       number_of_rides_taken: 0,
       number_of_rides_given: 0,
       number_of_reports_made: 0,
@@ -106,7 +103,6 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-// Render login page
 router.get("/login", (req, res) => {
   if (req.session.user) {
     return res.redirect("/dashboard");
@@ -114,7 +110,6 @@ router.get("/login", (req, res) => {
   res.render("login", { title: "Login" });
 });
 
-// Handle login form submission
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -140,7 +135,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Handle logout
 router.get("/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) {
@@ -150,23 +144,12 @@ router.get("/logout", (req, res) => {
   });
 });
 
-// router.use(isAuthenticated);
-// Render dashboard page after login
 router.get("/", ensureAuthenticated, (req, res) => {
   res.render("dashboard", { title: "Dashboard", user: req.session.user });
 });
 
-// router.get("/rideSearch", ensureAuthenticated, (req, res) => {
-//   res.render("rideSearch", { title: "Ride Search", user: req.session.user });
-// });
-
-// router.get("/ridePost", ensureAuthenticated, (req, res) => {
-//   res.render("ridePost", { title: "Ride Post", user: req.session.user });
-// });
-
-router.get("/profile", async (req, res) => {
+router.get("/profile", ensureAuthenticated, async (req, res) => {
   try {
-    // Assuming `req.session.user` contains the logged-in user's ID or username
     const username = req.session.user.username;
     const user = await usersData.findByUsername(username);
 
@@ -176,19 +159,35 @@ router.get("/profile", async (req, res) => {
         .render("error", { message: "User not found", title: "Error" });
     }
 
-    // Pass the user data to the template
+    const generateStars = (rating) => {
+      let stars = "";
+      for (let i = 1; i <= 5; i++) {
+        if (i <= rating) {
+          stars += '<span class="star filled">&#9733;</span>';
+        } else {
+          stars += '<span class="star">&#9733;</span>';
+        }
+      }
+      return stars;
+    };
+
+    const riderStars = generateStars(Math.round(user.rider_review || 0));
+    const driverStars = generateStars(Math.round(user.Driver_review || 0));
+
     res.render("profile", {
       title: "Profile",
       user: {
-        name: user.firstname + " " + user.lastname,
+        name: `${user.firstname} ${user.lastname}`,
         phone: user.phone || "Not Provided",
         email: user.email || "Not Provided",
         username: user.username,
-        reviewsAsRider: user.reviewsAsRider || 0,
-        reviewsAsDriver: user.reviewsAsDriver || 0,
-        ridesTaken: user.ridesTaken || 0,
-        ridesGiven: user.ridesGiven || 0,
-        reportsMade: user.reportsMade || 0,
+        riderReview: user.rider_review,
+        driverReview: user.driver_review,
+        riderReviewCount: user.rider_review_count || 0,
+        driverReviewCount: user.Driver_review_count || 0,
+        ridesTaken: user.number_of_rides_taken || 0,
+        ridesGiven: user.number_of_rides_given || 0,
+        reportsMade: user.number_of_rides_made || 0,
       },
     });
   } catch (error) {

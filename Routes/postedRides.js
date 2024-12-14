@@ -4,7 +4,6 @@ import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
-// Ensure the user is authenticated
 const ensureAuthenticated = (req, res, next) => {
   if (req.session?.user) {
     next();
@@ -13,40 +12,47 @@ const ensureAuthenticated = (req, res, next) => {
   }
 };
 
-// Route to display posted rides with individual chat sessions
 router.get("/", ensureAuthenticated, async (req, res) => {
   try {
     const user = req.session.user;
     const ridePostCollection = await ridePost();
     const chatSessionCollection = await chatSessions();
 
-    // Fetch all rides posted by the driver
     const postedRides = await ridePostCollection
       .find({ driverId: user.username })
       .toArray();
 
-    const postedChats = [];
+    const postedRidesWithChats = await Promise.all(
+      postedRides.map(async (ride) => {
+        const chats = await chatSessionCollection
+          .find({ rideId: ride._id.toString() })
+          .toArray();
 
-    // Fetch chats for each posted ride
-    for (const ride of postedRides) {
-      const chats = await chatSessionCollection
-        .find({ rideId: ride._id.toString() }) // Use ride ID to find chat sessions
-        .toArray();
+        return {
+          rideId: ride._id.toString(),
+          origin: ride.origin,
+          destination: ride.destination,
+          date: ride.date,
+          time: ride.time,
+          seats: ride.seats,
+          amount: ride.amount,
+          isAvailable: ride.isAvailable,
+          chats: chats.map((chat) => ({
+            chatId: chat._id.toString(),
+            rider: chat.rider,
+          })),
+        };
+      })
+    );
 
-      chats.forEach((chat) => {
-        postedChats.push({
-          ride, // Full ride details
-          chatId: chat._id.toString(),
-          rider: chat.rider, // Rider's username
-        });
-      });
-    }
-
-    res.render("postedRide", { postedChats });
+    res.render("postedRide", {
+      postedRides: postedRidesWithChats,
+    });
   } catch (err) {
     console.error("Error fetching posted rides and chats:", err);
     res.status(500).render("error", {
-      message: "Unable to fetch posted rides and chats. Please try again later.",
+      message:
+        "Unable to fetch posted rides and chats. Please try again later.",
     });
   }
 });

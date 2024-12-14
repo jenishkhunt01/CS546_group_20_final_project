@@ -1,37 +1,58 @@
-import { chatSessions, ridePost } from "../../config/mongoCollection.js";
+import {
+  chatSessions,
+  ridePost,
+  rideHistory,
+} from "../../config/mongoCollection.js";
 import { ObjectId } from "mongodb";
 
 export const chatCleanup = async () => {
   try {
     const currentDate = new Date();
 
-    // Cleanup chat sessions
     const chatSessionCollection = await chatSessions();
     const ridePostCollection = await ridePost();
+    const rideHistoryCollection = await rideHistory();
 
-    // Find and delete all chat sessions where the ride date is in the past
-    const ridesToDelete = await ridePostCollection
-      .find({ date: { $lt: currentDate.toISOString().split("T")[0] } })
+    // Find rides in the past (completed or canceled)
+    const ridesToArchive = await ridePostCollection
+      .find({
+        date: { $lt: currentDate.toISOString().split("T")[0] },
+        status: { $in: ["completed", "canceled"] },
+      })
       .toArray();
 
-    const rideIdsToDelete = ridesToDelete.map((ride) => ride._id.toString());
+    if (ridesToArchive.length > 0) {
+      // Archive rides in rideHistory
+      const archivedRides = ridesToArchive.map((ride) => ({
+        origin: ride.origin,
+        destination: ride.destination,
+        date: ride.date,
+        time: ride.time,
+        amount: ride.amount,
+        seats: ride.seats,
+        status: ride.status,
+        driver: ride.driver,
+        rider: ride.rider,
+        createdAt: ride.createdAt,
+        archivedAt: currentDate, // Timestamp for archival
+      }));
 
-    if (rideIdsToDelete.length > 0) {
-      // Delete chat sessions associated with the rides
+      await rideHistoryCollection.insertMany(archivedRides);
+
+      // Remove associated chat sessions
+      const rideIdsToCleanup = ridesToArchive.map((ride) =>
+        ride._id.toString()
+      );
+
       await chatSessionCollection.deleteMany({
-        rideId: { $in: rideIdsToDelete },
-      });
-
-      // Delete rides with past dates
-      await ridePostCollection.deleteMany({
-        _id: { $in: ridesToDelete.map((ride) => new ObjectId(ride._id)) },
+        rideId: { $in: rideIdsToCleanup },
       });
 
       console.log(
-        `Deleted ${ridesToDelete.length} rides and their associated chat sessions.`
+        `Archived ${ridesToArchive.length} rides to rideHistory and cleaned up associated chat sessions.`
       );
     } else {
-      console.log("No rides or chat sessions to delete.");
+      console.log("No rides to archive or clean up.");
     }
   } catch (error) {
     console.error("Error during cleanup:", error);

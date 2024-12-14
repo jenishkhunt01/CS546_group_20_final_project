@@ -4,7 +4,6 @@ import { ObjectId } from "mongodb";
 
 const router = express.Router();
 
-// Ensure the user is authenticated
 const ensureAuthenticated = (req, res, next) => {
   if (req.session?.user) {
     next();
@@ -13,7 +12,6 @@ const ensureAuthenticated = (req, res, next) => {
   }
 };
 
-// Handle ride request
 router.post("/", ensureAuthenticated, async (req, res) => {
   try {
     const { rideId, rider } = req.body;
@@ -26,7 +24,6 @@ router.post("/", ensureAuthenticated, async (req, res) => {
     const ridePostCollection = await ridePost();
     const rideRequestsCollection = await rideRequests();
 
-    // Check if the ride exists
     const ride = await ridePostCollection.findOne({
       _id: new ObjectId(rideId),
     });
@@ -34,7 +31,6 @@ router.post("/", ensureAuthenticated, async (req, res) => {
       return res.status(404).json({ error: "Ride not found." });
     }
 
-    // Prevent duplicate requests
     const existingRequest = await rideRequestsCollection.findOne({
       rideId,
       rider: rider,
@@ -43,7 +39,6 @@ router.post("/", ensureAuthenticated, async (req, res) => {
       return res.status(400).json({ error: "Ride request already exists." });
     }
 
-    // Add the request to the collection
     const request = {
       rideId,
       rider: user.username,
@@ -54,7 +49,6 @@ router.post("/", ensureAuthenticated, async (req, res) => {
 
     await rideRequestsCollection.insertOne(request);
 
-    // Redirect back with success
     res.redirect("/dashboard");
   } catch (err) {
     console.error("Error requesting ride:", err);

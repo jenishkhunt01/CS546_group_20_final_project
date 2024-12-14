@@ -21,3 +21,4 @@ export const users = getCollectionFn("users");
 export const ridePost = getCollectionFn("ridePost");
 export const chatSessions = getCollectionFn("chat");
 export const rideRequests = getCollectionFn("rideRequest");
+export const rideHistory = getCollectionFn("rideHistory");
