@@ -1,10 +1,10 @@
 import express from "express";
-import ridePostData from "../data/ridePost.js"; 
-import validator from "../helper.js"; 
+import ridePostData from "../data/ridePost.js";
+import validator from "../helper.js";
 import axios from "axios";
 import dotenv from "dotenv";
 
-dotenv.config(); 
+dotenv.config();
 
 const router = express.Router();
 
@@ -17,15 +17,25 @@ const ensureAuthenticated = (req, res, next) => {
 };
 
 router.get("/", ensureAuthenticated, (req, res) => {
+  if (!req.session.user.isVerified) {
+    return res.redirect("/verify");
+  }
   res.render("ridePost", { title: "Ride Post", user: req.session.user });
 });
 
 router.post("/post", ensureAuthenticated, async (req, res) => {
   try {
-    const { origin, destination, date, time, seats, amount, carType } =
-      req.body;
+    const {
+      origin,
+      destination,
+      date,
+      time,
+      seats,
+      amount,
+      carType,
+      description,
+    } = req.body;
 
-   
     if (
       !origin ||
       !destination ||
@@ -33,13 +43,13 @@ router.post("/post", ensureAuthenticated, async (req, res) => {
       !time ||
       !seats ||
       !amount ||
-      !carType
+      !carType ||
+      !description
     ) {
       return res
         .status(400)
         .render("error", { message: "All fields are required!" });
     }
-
 
     const validatedOrigin = validator.checkString(origin, "Origin");
     const validatedDestination = validator.checkString(
@@ -55,8 +65,12 @@ router.post("/post", ensureAuthenticated, async (req, res) => {
       });
     }
 
-    const driverId = req.session.user.username;
+    const updateddescription = validator.checkString(
+      description,
+      "Description"
+    );
 
+    const driverId = req.session.user.username;
 
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     const distanceMatrixUrl = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(
@@ -85,8 +99,9 @@ router.post("/post", ensureAuthenticated, async (req, res) => {
       time,
       seats: validatedSeats,
       amount: validatedAmount,
-      carType, 
-      estimatedDuration, 
+      carType,
+      estimatedDuration,
+      description: updateddescription,
     });
 
     res.redirect(`/dashboard`);

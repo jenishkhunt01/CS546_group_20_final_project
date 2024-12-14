@@ -1,5 +1,5 @@
 import authRoutes from "./auth.js";
-import rideRoutes from "./rides.js";
+import rideRoutes from "./verify.js";
 import ridePost from "./ridePost.js";
 import rideSearch from "./rideSearch.js";
 import chatRoutes from "./chat.js";
@@ -9,6 +9,7 @@ import { static as staticDir } from "express";
 import rideRequestRoutes from "./rideRequest.js";
 import requestedRidesRoutes from "./requestedRides.js";
 import upcomingRides from "./upcomingRides.js";
+import verify from "./verify.js";
 
 const constructorMethods = (app, io) => {
   app.use("/", authRoutes);
@@ -21,6 +22,7 @@ const constructorMethods = (app, io) => {
   app.use("/requestedRides", requestedRidesRoutes);
   app.use("/postedRides", postedRides);
   app.use("/upcomingRides", upcomingRides);
+  app.use("/verify", verify);
 
   app.use("/public", staticDir("public"));
 
