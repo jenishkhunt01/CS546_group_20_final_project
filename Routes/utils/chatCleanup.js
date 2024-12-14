@@ -2,6 +2,7 @@ import {
   chatSessions,
   ridePost,
   rideHistory,
+  rideRequests,
 } from "../../config/mongoCollection.js";
 import { ObjectId } from "mongodb";
 
@@ -12,17 +13,22 @@ export const chatCleanup = async () => {
     const chatSessionCollection = await chatSessions();
     const ridePostCollection = await ridePost();
     const rideHistoryCollection = await rideHistory();
+    const rideRequestsCollection = await rideRequests();
 
-    // Find rides in the past (completed or canceled)
+    // ---------------------------
+    // Step 1: Archive old rides
+    // ---------------------------
     const ridesToArchive = await ridePostCollection
       .find({
-        date: { $lt: currentDate.toISOString().split("T")[0] },
-        status: { $in: ["completed", "canceled"] },
+        $or: [
+          { date: { $lt: currentDate.toISOString().split("T")[0] } }, // Rides in the past
+          // { status: { $in: ["completed", "cancelled"] } },
+        ],
       })
       .toArray();
 
     if (ridesToArchive.length > 0) {
-      // Archive rides in rideHistory
+      // Prepare rides for archival in rideHistory
       const archivedRides = ridesToArchive.map((ride) => ({
         origin: ride.origin,
         destination: ride.destination,
@@ -37,14 +43,19 @@ export const chatCleanup = async () => {
         archivedAt: currentDate, // Timestamp for archival
       }));
 
+      // Insert archived rides into rideHistory
       await rideHistoryCollection.insertMany(archivedRides);
 
-      // Remove associated chat sessions
+      // Remove the rides from ridePost after archival
       const rideIdsToCleanup = ridesToArchive.map((ride) =>
         ride._id.toString()
       );
 
       await chatSessionCollection.deleteMany({
+        rideId: { $in: rideIdsToCleanup },
+      });
+
+      await rideRequestsCollection.deleteMany({
         rideId: { $in: rideIdsToCleanup },
       });
 
@@ -54,6 +65,41 @@ export const chatCleanup = async () => {
     } else {
       console.log("No rides to archive or clean up.");
     }
+
+    // ---------------------------
+    // Step 2: Check orphaned chatSessions and rideRequests
+    // ---------------------------
+    // Iterate through all chatSessions
+    const allChatSessions = await chatSessionCollection.find({}).toArray();
+    for (const session of allChatSessions) {
+      const rideExists = await ridePostCollection.findOne({
+        _id: new ObjectId(session.rideId),
+      });
+      if (!rideExists) {
+        // Delete orphaned chat session
+        await chatSessionCollection.deleteOne({ _id: session._id });
+        console.log(
+          `Deleted orphaned chat session with rideId: ${session.rideId}`
+        );
+      }
+    }
+
+    // Iterate through all rideRequests
+    const allRideRequests = await rideRequestsCollection.find({}).toArray();
+    for (const request of allRideRequests) {
+      const rideExists = await ridePostCollection.findOne({
+        _id: new ObjectId(request.rideId),
+      });
+      if (!rideExists) {
+        // Delete orphaned ride request
+        await rideRequestsCollection.deleteOne({ _id: request._id });
+        console.log(
+          `Deleted orphaned ride request with rideId: ${request.rideId}`
+        );
+      }
+    }
+
+    console.log("Chat and ride request cleanup completed.");
   } catch (error) {
     console.error("Error during cleanup:", error);
   }

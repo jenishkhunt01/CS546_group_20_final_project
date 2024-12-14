@@ -4,6 +4,8 @@ import {
   ridePost,
   chatSessions,
 } from "../config/mongoCollection.js";
+
+import { chatCleanup } from "./utils/chatCleanup.js";
 import { ObjectId } from "mongodb";
 
 const router = express.Router();
@@ -45,7 +47,7 @@ router.get("/", ensureAuthenticated, async (req, res) => {
           date: ride?.date || "Unknown",
           time: ride?.time || "Unknown",
           amount: ride?.amount || "Unknown",
-          status: request.status, 
+          status: request.status,
         };
       })
     );
