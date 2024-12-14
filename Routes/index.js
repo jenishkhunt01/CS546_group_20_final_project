@@ -8,6 +8,7 @@ import riderChats from "./riderChats.js";
 import { static as staticDir } from "express";
 import rideRequestRoutes from "./rideRequest.js";
 import requestedRidesRoutes from "./requestedRides.js";
+import upcomingRides from "./upcomingRides.js";
 
 const constructorMethods = (app, io) => {
   app.use("/", authRoutes);
@@ -19,6 +20,7 @@ const constructorMethods = (app, io) => {
   app.use("/rideRequest", rideRequestRoutes);
   app.use("/requestedRides", requestedRidesRoutes);
   app.use("/postedRides", postedRides);
+  app.use("/upcomingRides", upcomingRides);
 
   app.use("/public", staticDir("public"));
 
