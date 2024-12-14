@@ -7,6 +7,8 @@ import path from "path";
 import constructorMethods from "./Routes/index.js";
 import cron from "node-cron";
 import { chatCleanup } from "./Routes/utils/chatCleanup.js";
+import multer from "multer";
+import upload from "./middleware/upload.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -60,6 +62,9 @@ app.set("view engine", "handlebars");
 app.set("views", path.join(path.resolve(), "views"));
 
 app.use("/public", express.static(path.join(path.resolve(), "public")));
+app.post("/verify", upload.single("licenseImg"), (req, res, next) => {
+  next();
+});
 
 constructorMethods(app);
 

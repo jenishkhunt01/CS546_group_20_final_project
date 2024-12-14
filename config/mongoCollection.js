@@ -1,8 +1,4 @@
-// <<<<<<< HEAD
-// import dbConnection from './mongoConnection.js';
-// =======
-import { dbConnection } from "./mongoConnection.js";
-// >>>>>>> main
+import { dbConnection } from './mongoConnection.js';
 
 const getCollectionFn = (collection) => {
   let _col = undefined;
@@ -22,3 +18,5 @@ export const ridePost = getCollectionFn("ridePost");
 export const chatSessions = getCollectionFn("chat");
 export const rideRequests = getCollectionFn("rideRequest");
 export const rideHistory = getCollectionFn("rideHistory");
+
+export const ride = getCollectionFn('ride');

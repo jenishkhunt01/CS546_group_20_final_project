@@ -15,20 +15,18 @@ export const chatCleanup = async () => {
     const rideHistoryCollection = await rideHistory();
     const rideRequestsCollection = await rideRequests();
 
-    // ---------------------------
-    // Step 1: Archive old rides
-    // ---------------------------
+
     const ridesToArchive = await ridePostCollection
       .find({
         $or: [
-          { date: { $lt: currentDate.toISOString().split("T")[0] } }, // Rides in the past
+          { date: { $lt: currentDate.toISOString().split("T")[0] } },
           // { status: { $in: ["completed", "cancelled"] } },
         ],
       })
       .toArray();
 
     if (ridesToArchive.length > 0) {
-      // Prepare rides for archival in rideHistory
+     
       const archivedRides = ridesToArchive.map((ride) => ({
         origin: ride.origin,
         destination: ride.destination,
