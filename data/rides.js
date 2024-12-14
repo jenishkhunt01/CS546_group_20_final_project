@@ -1,4 +1,4 @@
-import { ride } from "../config/mongoCollection.js";
+import { ride, users } from "../config/mongoCollection.js";
 import validator from "../helper.js";
 import { carTypes, locations } from "../constants.js";
 import moment from "moment";
@@ -53,7 +53,11 @@ async function addRide(reqBody, res, userId) {
       rideData.seatsAvailable > carTypes.get(rideData.carType) ||
       rideData.seatsAvailable < 1
     ) {
-      throw new Error(`Invalid number of seats available. Maximum allowed seats for ${rideData.carType} is ${carTypes.get(rideData.carType)}`);
+      throw new Error(
+        `Invalid number of seats available. Maximum allowed seats for ${
+          rideData.carType
+        } is ${carTypes.get(rideData.carType)}`
+      );
     }
     if (
       rideData.startLocation.toLowerCase() ===
@@ -92,8 +96,35 @@ async function addRide(reqBody, res, userId) {
   }
 }
 
+async function addDrivingLicense(license, licenseImg, res, req) {
+  try {
+    license = validator.checkString(license, "license");
+  } catch (e) {
+    return res.status(400).json({ message: e.message });
+  }
+  let driverDetails = {
+    license,
+    licenseImg: licenseImg.id,
+  };
+  try {
+    const userCollection = await users();
+    const updateInfo = await userCollection.updateOne(
+      { userId: req.session.user.userId },
+      { $set: { driverDetails, isVerified: true } }
+    );
+    if (updateInfo.modifiedCount === 0) {
+      return res.status(500).json({ message: "Could not add driving license" });
+    }
+  } catch (e) {
+    return res.status(500).json({ message: e.message });
+  }
+  req.session.user.isVerified = true;
+  return res.redirect("/ridePost");
+}
+
 const rideData = {
   addRide,
+  addDrivingLicense,
 };
 
 export default rideData;

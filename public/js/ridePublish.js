@@ -9,6 +9,8 @@
     let date = $("#date");
     let time = $("#time");
     let price = $("#price");
+    let recommendPrice = $("#recommendPrice");
+    let verifyLicenseForm = $("#verifyLicenseForm");
 
     form.submit(function (event) {
       event.preventDefault();
@@ -55,6 +57,129 @@
             )
             .show();
           alert(xhr.responseJSON.message);
+        },
+      });
+    });
+    recommendPrice.click(function () {
+      error.hide();
+      if (!startLocation.val() || !endLocation.val()) {
+        error
+          .text(
+            "Please enter both start and end locations to get a recommended price."
+          )
+          .show();
+        return;
+      }
+      if (!carType.val()) {
+        error
+          .text("Please select a car type to get a recommended price.")
+          .show();
+        return;
+      }
+      if (
+        !seatsAvailable.val() ||
+        seatsAvailable.val() < 1 ||
+        !Number.isInteger(Number(seatsAvailable.val()))
+      ) {
+        error
+          .text(
+            "Please enter the number of seats available to get a recommended price."
+          )
+          .show();
+        return;
+      }
+      const gasPrices = new Map([
+        ["Boston", 3.034],
+        ["New York City", 2.953],
+        ["Hoboken", 2.953],
+      ]);
+      const carMileage = new Map([
+        ["Sedan", 31],
+        ["SUV", 29],
+        ["Truck", 20],
+      ]);
+      const distances = new Map([
+        ["Hoboken - New York City", 9],
+        ["Hoboken - Boston", 218],
+        ["New York City - Boston", 209],
+      ]);
+
+      if (
+        !gasPrices.has(startLocation.val()) ||
+        !gasPrices.has(endLocation.val())
+      ) {
+        error
+          .text(
+            "Please enter valid start and end locations to get a recommended price."
+          )
+          .show();
+        return;
+      }
+
+      if (!carMileage.has(carType.val())) {
+        error
+          .text("Please enter a valid car type to get a recommended price.")
+          .show();
+        return;
+      }
+      let distanceKey = `${startLocation.val()} - ${endLocation.val()}`;
+      if (!distances.has(distanceKey)) {
+        distanceKey = `${endLocation.val()} - ${startLocation.val()}`;
+        if (!distances.has(distanceKey)) {
+          error
+            .text("Distance between the specified locations is not available.")
+            .show();
+          return;
+        }
+      }
+
+      let distance = distances.get(distanceKey);
+      let gasPrice = gasPrices.get(startLocation.val());
+      let mileage = carMileage.get(carType.val());
+      let averagePrice = (distance / mileage) * gasPrice;
+      let pricePerSeat = averagePrice / seatsAvailable.val() + 1;
+      price.val(Math.round(pricePerSeat));
+    });
+
+    verifyLicenseForm.submit(function (event) {
+      event.preventDefault();
+
+      const license = document.getElementById("license").value;
+      const licenseImg = document.getElementById("licenseImg").files[0];
+
+      if (!license || license.trim().length === 0) {
+        alert("License number is required.");
+        return;
+      }
+
+      if (!licenseImg) {
+        alert("License image is required.");
+        return;
+      }
+
+      const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.gif)$/i;
+      if (!allowedExtensions.exec(licenseImg.name)) {
+        alert(
+          "Invalid file type. Please upload an image file (jpg, jpeg, png, gif)."
+        );
+        return;
+      }
+
+      let formData = new FormData();
+      formData.append("license", license);
+      formData.append("licenseImg", licenseImg);
+
+      $.ajax({
+        type: "POST",
+        url: "/verify",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+          window.location.href = "/ridePost";
+        },
+        error: function (_, __, errorThrown) {
+          alert("Error: " + errorThrown);
         },
       });
     });

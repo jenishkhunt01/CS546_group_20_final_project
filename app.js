@@ -4,7 +4,10 @@ import bodyParser from "body-parser";
 import exphbs from "express-handlebars";
 import session from "express-session";
 import isAuthenticated from "./middleware/authMiddleware.js";
+import multer from "multer";
 const app = express();
+// const upload = multer({ dest: "uploads/" });
+import upload from "./middleware/upload.js";
 
 const rewriteUnsupportedBrowserMethods = (req, res, next) => {
   if (req.body && req.body._method) {
@@ -40,6 +43,9 @@ app.use((req, res, next) => {
   return isAuthenticated(req, res, next);
 });
 
+app.post("/verify", upload.single("licenseImg"), (req, res, next) => {
+  next();
+});
 
 configRoutes(app);
 
