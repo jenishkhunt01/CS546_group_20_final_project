@@ -1,55 +1,74 @@
 import express from "express";
-import configRoutes from "./Routes/index.js";
-import bodyParser from "body-parser";
-import exphbs from "express-handlebars";
+import http from "http";
+import { Server } from "socket.io";
 import session from "express-session";
-import isAuthenticated from "./middleware/authMiddleware.js";
+import exphbs from "express-handlebars";
+import path from "path";
+import constructorMethods from "./Routes/index.js";
+import cron from "node-cron";
+import { chatCleanup } from "./Routes/utils/chatCleanup.js";
 import multer from "multer";
-const app = express();
-// const upload = multer({ dest: "uploads/" });
 import upload from "./middleware/upload.js";
 
-const rewriteUnsupportedBrowserMethods = (req, res, next) => {
-  if (req.body && req.body._method) {
-    req.method = req.body._method;
-    delete req.body._method;
-  }
-  next();
-};
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
-    name: "AuthCookie", // Custom name for the session cookie
-    secret: process.env.SESSION_SECRET, // Secret key for signing the session ID
-    resave: false, // Prevent session from being saved if it wasn't modified
-    saveUninitialized: false, // Do not save empty sessions
-    cookie: { maxAge: 600000 }, // Set cookie expiration time (10 minutes)
+    name: "AuthCookie",
+    secret: "your_session_secret", 
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 600000 }, // 10 minutes
   })
 );
 
-app.use(express.json());
-app.use(bodyParser.json());
-app.use("/public", express.static("public"));
-app.use(express.urlencoded({ extended: true }));
-app.use(rewriteUnsupportedBrowserMethods);
+// const hbs = exphbs.create({ defaultLayout: "main" });
 
-app.engine("handlebars", exphbs.engine({ defaultLayout: "main" }));
-app.set("view engine", "handlebars");
-
-app.use((req, res, next) => {
-  if (req.path === "/login" || req.path === "/signup") {
-    return next();
-  }
-  return isAuthenticated(req, res, next);
+const hbs = exphbs.create({
+  helpers: {
+    eq: function (a, b) {
+      return a === b;
+    },
+    json: function (context) {
+      return JSON.stringify(context);
+    },
+    generateStars: function (rating) {
+      const stars = [];
+      for (let i = 0; i < 5; i++) {
+        stars.push(i < rating ? "filled" : "");
+      }
+      return stars;
+    },
+    ifEquals: function (arg1, arg2, options) {
+      return arg1 === arg2 ? options.fn(this) : options.inverse(this);
+    },
+  },
+  defaultLayout: "main",
+  layoutsDir: path.join(path.resolve(), "views", "layouts"),
+  partialsDir: [path.join(path.resolve(), "views", "partials")],
 });
 
+cron.schedule("* * * * *", async () => {
+  console.log("Running daily chat cleanup...");
+  await chatCleanup();
+});
+
+app.engine("handlebars", hbs.engine);
+app.set("view engine", "handlebars");
+app.set("views", path.join(path.resolve(), "views"));
+
+app.use("/public", express.static(path.join(path.resolve(), "public")));
 app.post("/verify", upload.single("licenseImg"), (req, res, next) => {
   next();
 });
 
-configRoutes(app);
+constructorMethods(app);
 
-app.listen(3000, () => {
-  console.log("We've now got a server!");
-  console.log("Your routes will be running on http://localhost:3000");
+const PORT = 3000;
+server.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });

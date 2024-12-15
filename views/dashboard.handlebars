@@ -1,56 +1,30 @@
-<div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-8 relative">
-  <!-- Navigation -->
-  <nav class="flex flex-row justify-between items-center mb-6">
-    <!-- Dashboard Title -->
-    <h1 class="text-3xl font-bold text-blue-600">Dashboard</h1>
 
-    <!-- Navigation Links -->
-    <div class="flex flex-row items-center space-x-4">
-      <!-- Book Ride Link -->
-      <a
-        href="/rideSearch"
-        class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
-      >
-        Book Ride
-      </a>
-
-      <!-- Post Ride Link -->
-      <a
-        href="/ridePost"
-        class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
-      >
-        Post Ride
-      </a>
-
-      <a
-        href="/pastRides"
-        class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
-      >
-        Ride History
-      </a>
-
-      <!-- Profile Link -->
-      <a
-        href="/profile"
-        class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition duration-300"
-      >
-        Profile
-      </a>
-
-      <!-- Logout Button -->
-      <form action="/logout" method="GET">
-        <button
-          type="submit"
-          class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition duration-300"
-        >
-          Logout
-        </button>
+<main>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h2 class="sidebar-title">Dashboard</h2>
+      <nav class="sidebar-nav">
+        <a href="/rideSearch" class="nav-link">Book Ride</a>
+        <a href="/ridePost" class="nav-link">Post Ride</a>
+        <a href="/upcomingRides" class="nav-link">Upcoming Rides</a>
+        <a href="/rideHistory" class="nav-link">Ride History</a>
+        <a href="/requestedRides" class="nav-link">Requested Rides</a>
+        <a href="/postedRides" class="nav-link">My Posted Rides</a>
+        <a href="/riderChats" class="nav-link">Chats</a>
+        <a href="/profile" class="nav-link">Profile</a>
+      </nav>
+      <form action="/logout" method="GET" class="logout-form">
+        <button type="submit" class="logout-btn">Logout</button>
       </form>
-    </div>
-  </nav>
+    </aside>
 
-  <!-- Welcome Message -->
-  <p class="text-gray-700">
-    Welcome, <span class="font-semibold">{{user.username}}</span>! Explore your dashboard to manage your rides.
-  </p>
-</div>
+    <main class="main-content">
+      <h1>Welcome, {{user.username}}!</h1>
+      <p>Manage your rides and account using the options in the menu.</p>
+      <div id="content">
+        <p>Select an option from the menu to get started.</p>
+      </div>
+    </main>
+  </div>
+</main>
+
