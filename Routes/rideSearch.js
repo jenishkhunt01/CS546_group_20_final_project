@@ -2,6 +2,7 @@ import express from "express";
 import { ridePost, users } from "../config/mongoCollection.js";
 import { ObjectId } from "mongodb";
 import dayjs from "dayjs";
+import validator from "../helper.js";
 
 const router = express.Router();
 
@@ -20,10 +21,26 @@ router.get("/", ensureAuthenticated, (req, res) => {
 
 router.post("/", ensureAuthenticated, async (req, res) => {
   try {
-    const { startLocation, endLocation, date, time, seatsRequired } = req.body;
+    const {
+      startLocation,
+      endLocation,
+      date,
+      time,
+      seatsRequired,
+      minPrice,
+      maxPrice,
+    } = req.body;
     const user = req.session.user;
 
-    if (!startLocation || !endLocation || !date || !time || !seatsRequired) {
+    if (
+      !startLocation ||
+      !endLocation ||
+      !date ||
+      !time ||
+      !seatsRequired ||
+      !minPrice ||
+      !maxPrice
+    ) {
       return res.status(400).render("error", {
         message: "All fields are required.",
       });
@@ -38,9 +55,19 @@ router.post("/", ensureAuthenticated, async (req, res) => {
       });
     }
 
+    const timeWindow = 6; // in hours
     // Create a one-hour time window around the requested time
-    const timeLowerBound = riderTime.subtract(1, "hour").format("HH:mm");
-    const timeUpperBound = riderTime.add(1, "hour").format("HH:mm");
+    const timeLowerBound = riderTime
+      .subtract(timeWindow, "hour")
+      .startOf("day")
+      .format("HH:mm");
+    const timeUpperBound = riderTime
+      .add(timeWindow, "hour")
+      .endOf("day")
+      .format("HH:mm");
+
+    let amountLowerBound = validator.checkNumber(minPrice, "Minimum price");
+    let amountUpperBound = validator.checkNumber(maxPrice, "Maximum price");
 
     const ridePostCollection = await ridePost();
     const usersCollection = await users();
@@ -53,8 +80,8 @@ router.post("/", ensureAuthenticated, async (req, res) => {
         origin: startLocation,
         destination: endLocation,
         driverId: { $ne: user.username },
-        time,
         time: { $gte: timeLowerBound, $lte: timeUpperBound },
+        amount: { $gte: amountLowerBound, $lte: amountUpperBound },
       })
       .toArray();
 
@@ -75,6 +102,7 @@ router.post("/", ensureAuthenticated, async (req, res) => {
             ? `${driver.firstname} ${driver.lastname}`
             : "Unknown",
           carType: ride.carType,
+          description: ride.description,
         };
       })
     );

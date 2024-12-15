@@ -3,6 +3,7 @@ import ridePostData from "../data/ridePost.js";
 import validator from "../helper.js";
 import axios from "axios";
 import dotenv from "dotenv";
+import { carTypes, locations } from "../constants.js";
 
 dotenv.config();
 
@@ -56,6 +57,11 @@ router.post("/post", ensureAuthenticated, async (req, res) => {
       destination,
       "Destination"
     );
+    if (!locations.includes(validatedOrigin) || !locations.includes(validatedDestination)) {
+      return res.status(400).render("error", {
+      message: "Origin and destination must be valid locations!",
+      });
+    }
     const validatedSeats = parseInt(seats);
     const validatedAmount = parseFloat(amount);
 

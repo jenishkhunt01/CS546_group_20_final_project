@@ -1,6 +1,5 @@
 import { ride, users } from "../config/mongoCollection.js";
 import validator from "../helper.js";
-import { carTypes, locations } from "../constants.js";
 import moment from "moment";
 
 async function addDrivingLicense(license, licenseImg, res, req) {
