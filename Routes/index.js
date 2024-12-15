@@ -11,6 +11,7 @@ import requestedRidesRoutes from "./requestedRides.js";
 import upcomingRides from "./upcomingRides.js";
 import verify from "./verify.js";
 import rideHistory from "./rideHistory.js";
+import review from "./review.js";
 
 const constructorMethods = (app, io) => {
   app.use("/", authRoutes);
@@ -25,6 +26,7 @@ const constructorMethods = (app, io) => {
   app.use("/upcomingRides", upcomingRides);
   app.use("/verify", verify);
   app.use("/rideHistory", rideHistory);
+  app.use("/review", review);
 
   app.use("/public", staticDir("public"));
 
