@@ -11,9 +11,11 @@ router.get("/", async (req, res) => {
     user = validator.checkString(user, "User");
     // rideId = validator.isValidId(rideId, "Ride ID");
   } catch (e) {
-    return res.status(400).render("error", {
-      message: e,
-      title: "Error",
+    return res.status(400).render("review", {
+      reviewer,
+      user,
+      rideId,
+      error: "User not found",
     });
   }
   try {
@@ -21,15 +23,19 @@ router.get("/", async (req, res) => {
     let userData = await userCollection.findOne({ username: user });
     if (!userData) {
       return res.status(400).render("review", {
-        message: "User not found",
-        title: "Error",
+        reviewer,
+        user,
+        rideId,
+        error: "User not found",
       });
     }
     let reviewerData = await userCollection.findOne({ username: reviewer });
     if (!reviewerData) {
-      return res.status(400).render("error", {
-        message: "Reviewer not found",
-        title: "Error",
+      return res.status(400).render("review", {
+        reviewer,
+        user,
+        rideId,
+        error: "Reviewer not found",
       });
     }
 
@@ -39,9 +45,11 @@ router.get("/", async (req, res) => {
       rideId: rideId,
     });
   } catch (e) {
-    return res.status(500).render("error", {
-      message: e,
-      title: "Error",
+    return res.status(500).render("review", {
+      reviewer,
+      user,
+      rideId,
+      error: e,
     });
   }
 });
@@ -58,7 +66,7 @@ router.post("/", async (req, res) => {
     // rideId = validator.isValidId(rideId, "Ride ID");
     rating = validator.checkNumber(rating, "Rating");
     if (rating < 1 || rating > 5) {
-      throw new Error("Rating should be between 1 and 5");
+      throw "Rating should be between 1 and 5";
     }
     comment = validator.checkString(comment, "Comment");
   } catch (e) {
@@ -66,7 +74,7 @@ router.post("/", async (req, res) => {
       reviewer,
       user,
       rideId,
-      error: e.message,
+      error: e,
       title: "Error",
     });
   }
@@ -91,9 +99,19 @@ router.post("/", async (req, res) => {
       rating: rating,
       comment: comment,
     });
+    let driver_review = userData.Driver_review;
+    let Driver_review_count = userData.Driver_review_count;
+    Driver_review_count = Driver_review_count + 1;
+    driver_review = (driver_review + rating) / Driver_review_count;
     let updatedUser = await userCollection.updateOne(
       { username: user },
-      { $set: { reviews: reviewsList } }
+      {
+        $set: {
+          reviews: reviewsList,
+          Driver_review: driver_review,
+          Driver_review_count: Driver_review_count,
+        },
+      }
     );
     if (updatedUser.modifiedCount === 0) {
       return res.status(400).render("review", {
