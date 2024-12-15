@@ -11,7 +11,7 @@ async function addUser(user) {
   if (!firstname || !lastname || !phone || !username || !email || !password) {
     return res
       .status(400)
-      .render("error", { message: "All the field must be present" });
+      .render("error", { message: "All the fields must be present" });
   }
 
   try {
@@ -55,7 +55,7 @@ async function addUser(user) {
   return addedUser;
 }
 
-async function findByUsername(username) {
+export async function findByUsername(username) {
   if (!username) throw new Error("No username was provided");
 
   const userCollection = await users();

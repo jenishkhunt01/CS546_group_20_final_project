@@ -3,6 +3,7 @@ import validator from "../helper.js";
 import bcrypt from "bcrypt";
 import usersData from "../data/users.js";
 import isAuthenticated from "../middleware/authMiddleware.js";
+import rideData from "../data/rides.js";
 
 const router = express.Router();
 
@@ -196,6 +197,36 @@ router.get("/profile", ensureAuthenticated, async (req, res) => {
     res
       .status(500)
       .render("error", { message: "Internal Server Error", title: "Error" });
+  }
+});
+
+router.get("/rideinfo/:id", ensureAuthenticated, (req, res) => {
+  try {
+    res.render("rideInfo", {
+      title: "Ride Info",
+      ride: rideData.getRide(req.params.id),
+      isError: false,
+      booked: false
+    });
+  } catch (e) {
+    return res.status(400).render("error", {
+      message: e,
+      title: "Ride Info"
+    });
+  }
+});
+router.post("/rideinfo/:id", ensureAuthenticated, (req, res) => {
+  try {
+    rideData.bookRide(req.params.id, req.session.user.username);
+    return res.redirect("/rideinfo", {
+      ride: rideData.getRide(req.params.id),
+      isError: false,
+      booked: true
+    });
+  } catch (e) {
+    return res.redirect("/rideinfo", {
+      isError: true
+    });
   }
 });
 
