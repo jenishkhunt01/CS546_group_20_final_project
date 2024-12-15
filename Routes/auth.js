@@ -3,7 +3,7 @@ import validator from "../helper.js"; // Ensure helper.js exists and has necessa
 import bcrypt from "bcrypt";
 import usersData from "../data/users.js";
 import isAuthenticated from "../middleware/authMiddleware.js";
-import {rideData} from "../data/rides,js";
+import {rideData} from "../data/rides.js";
 
 const router = express.Router();
 
