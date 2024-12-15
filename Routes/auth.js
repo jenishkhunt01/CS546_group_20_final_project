@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import usersData from "../data/users.js";
 import isAuthenticated from "../middleware/authMiddleware.js";
 import rideData from "../data/rides.js";
+import { sendEmail } from "./utils/mailer.js";
 
 const router = express.Router();
 
@@ -226,6 +227,52 @@ router.post("/rideinfo/:id", ensureAuthenticated, (req, res) => {
   } catch (e) {
     return res.redirect("/rideinfo", {
       isError: true
+    });
+  }
+});
+
+router.post('/profile/shareTripStatus', ensureAuthenticated, async (req, res) => {
+  const { shareEmail } = req.body;
+  const { user } = req.session.user;
+  if(!shareEmail){
+    return res.status(400).render('error', {
+      message: 'Email is required to share the trip status',
+      title: 'Error',
+    });
+  }
+
+  try {
+    const driverDetails = await usersData.findByUsername(user);
+    const riderDetails = await usersData.findByUsername(rider);
+    if(!driverDetails){
+      return res.status(404).render('error', {
+        message: 'Driver details not found',
+        title: 'Error',
+      });
+    }
+    const emailContent = `
+      <h2>Trip Status</h2>
+      <p>${user.username} has shared their trip status with you.</p>
+      <p>Current Trip details:</p>
+      <ul>
+        <li>Date: ${riderDetails.date}</li>
+        <li>Time: ${riderDetails.time}</li>
+        <li>Origin: ${riderDetails.origin}</li>
+        <li>Destination: ${riderDetails.destination}</li>
+      </ul>
+      <p>Driver Details:</p>
+      <ul>
+        <li><strong>Name:</strong> ${driverDetails.firstname} ${driverDetails.lastname}</li>
+        <li><strong>Email:</strong> ${driverDetails.email}</li>
+        <li><strong>Phone:</strong> ${driverDetails.phone}</li>
+      </ul>`;
+    await sendEmail(shareEmail, 'Trip Status Shared', emailContent);
+    res.redirect('/profile');
+  } catch (error) {
+    console.error("Error sharing the trip status:", error.message);
+    res.status(500).render('error', {
+      message: 'Unable to share trip status. Please try again later.',
+      title: 'Error',
     });
   }
 });
