@@ -55,7 +55,7 @@ async function addUser(user) {
   return addedUser;
 }
 
-async function findByUsername(username) {
+export async function findByUsername(username) {
   if (!username) throw new Error("No username was provided");
 
   const userCollection = await users();
