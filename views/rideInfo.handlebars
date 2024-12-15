@@ -4,6 +4,13 @@
 	</script>
 	<h1 class="text-2xl font-bold text-blue-600 mb-6">Ride Info</h1>
 
+	{{#if isError}}
+	<p class="error">{{error}}</p>
+	{{/if}}
+
+	{{#if booked}}
+	<p>Ride successfully booked!</p>
+
 	<section>
 		<dl>
 			<dt>Date</dt>
@@ -36,18 +43,20 @@
 
 			<dt>Riders</dt>
 			{{#each ride.ridersList}}
-			<dd>{{this}}</dd>
+			<dd>{{this.username}}</dd>
 			{{/each}}
 
 			<dt>Waitlist</dt>
 			{{#each ride.waitList}}
-			<dd>{{this}}</dd>
+			<dd>{{this.username}}</dd>
 			{{/each}}
 
-			<button type="submit"
-			class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
-				Book Ride
-			</button>
+			<form id="bookRideButton" method="post" action="/rideInfo">
+				<button type="submit"
+				class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+					Book Ride
+				</button>
+			</form>
 		</dl>
 	</section>
 </main>

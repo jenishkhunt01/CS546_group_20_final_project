@@ -157,11 +157,34 @@ router.get("/rideSearch", ensureAuthenticated, (req, res) => {
   res.render("rideSearch", { title: "Ride Search", user: req.session.user });
 });
 
-router.get("/rideInfo", ensureAuthenticated, (req, res) => {
-  res.render("rideInfo", {
-    title: "Ride Info",
-    ride: rideData.getRide(req.params.id)
-  });
+router.get("/rideinfo/:id", ensureAuthenticated, (req, res) => {
+  try {
+    res.render("rideInfo", {
+      title: "Ride Info",
+      ride: rideData.getRide(req.params.id),
+      isError: false,
+      booked: false
+    });
+  } catch (e) {
+    return res.status(400).render("error", {
+      message: e,
+      title: "Ride Info"
+    });
+  }
+});
+router.post("/rideinfo/:id", ensureAuthenticated, (req, res) => {
+  try {
+    rideData.bookRide(req.params.id, req.session.user.username);
+    return res.redirect("/rideinfo", {
+      ride: rideData.getRide(req.params.id),
+      isError: false,
+      booked: true
+    });
+  } catch (e) {
+    return res.redirect("/rideinfo", {
+      isError: true
+    });
+  }
 });
 
 export default router;

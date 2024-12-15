@@ -3,6 +3,7 @@ import validator from "../helper.js";
 import { carTypes, locations } from "../constants.js";
 import moment from "moment";
 import {ObjectId} from "mongodb";
+import {findByUsername} from "./users.js";
 
 async function addRide(reqBody, res, userId) {
   let rideData = {
@@ -143,10 +144,33 @@ const getRide = async (id) => {
   return ride;
 };
 
+const bookRide = async (id, username) => {
+  // adds user's name to the ride's waitlist
+  const ride = getRide(id);
+  const user = findByUsername(username);
+
+  if (ride.isCancelled)
+    throw "Error: ride is cancelled";
+
+  const collection = await ride();
+  if (ride.ridersList.length < ride.seatsAvailable)
+    ride.ridersList.push(user);
+  else
+    ride.waitList.push(user);
+
+  const update = await collection.findOneAndReplace(
+    {_id: ObjectId.createFromHexString(id)},
+    ride,
+    {returnDocument: "after"}
+  );
+  return update;
+};
+
 const rideData = {
   addRide,
   addDrivingLicense,
-  getRide
+  getRide,
+  bookRide
 };
 
 export default rideData;
