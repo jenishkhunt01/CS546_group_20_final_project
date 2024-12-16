@@ -11,12 +11,12 @@ const ensureAuthenticated = (req, res, next) => {
   if (req.session && req.session.user) {
     next();
   } else {
-    res.redirect("/login");
+    res.redirect("/login", { showNav: false });
   }
 };
 
 router.get("/", ensureAuthenticated, (req, res) => {
-  res.render("rideSearch", { title: "Ride Search", user: req.session.user });
+  res.render("rideSearch", { title: "Ride Search", user: req.session.user, showNav: true });
 });
 
 router.post("/", ensureAuthenticated, async (req, res) => {
@@ -111,6 +111,7 @@ router.post("/", ensureAuthenticated, async (req, res) => {
       title: "Available Rides",
       hasRides: ridesWithDetails.length > 0,
       rides: ridesWithDetails,
+      showNav: true,
     });
   } catch (error) {
     console.error("Error during ride search:", error);

@@ -17,7 +17,7 @@ const ensureAuthenticated = (req, res, next) => {
   if (req.session?.user) {
     next();
   } else {
-    res.redirect("/login");
+    res.redirect("/login", { showNav: false });
   }
 };
 
@@ -118,6 +118,7 @@ router.get("/", ensureAuthenticated, async (req, res) => {
 
     res.render("upcomingRides", {
       rides: filteredRides,
+      showNav: true,
     });
   } catch (err) {
     console.error("Error fetching upcoming rides:", err);
@@ -164,7 +165,7 @@ router.post("/finish/:rideId", ensureAuthenticated, async (req, res) => {
 
     await ridePostCollection.deleteOne({ _id: new ObjectId(rideId) });
 
-    res.redirect("/upcomingRides");
+    res.redirect("/upcomingRides", { showNav: true });
   } catch (err) {
     console.error("Error finishing ride:", err);
     res.status(500).render("error", {
@@ -226,7 +227,7 @@ router.post("/cancel/:rideId", ensureAuthenticated, async (req, res) => {
       { $set: { status: "pending" } }
     );
 
-    res.redirect("/upcomingRides");
+    res.redirect("/upcomingRides", { showNav: true });
   } catch (err) {
     console.error("Error canceling ride:", err);
     res.status(500).render("error", {
