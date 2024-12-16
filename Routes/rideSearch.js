@@ -3,6 +3,7 @@ import { ridePost, users } from "../config/mongoCollection.js";
 import { ObjectId } from "mongodb";
 import dayjs from "dayjs";
 import validator from "../helper.js";
+import { locations } from "../constants.js";
 
 const router = express.Router();
 
@@ -21,7 +22,7 @@ router.get("/", ensureAuthenticated, (req, res) => {
 
 router.post("/", ensureAuthenticated, async (req, res) => {
   try {
-    const {
+    let {
       startLocation,
       endLocation,
       date,
@@ -43,6 +44,28 @@ router.post("/", ensureAuthenticated, async (req, res) => {
     ) {
       return res.status(400).render("error", {
         message: "All fields are required.",
+      });
+    }
+
+    try {
+      startLocation = validator.checkString(startLocation, "Start location");
+      endLocation = validator.checkString(endLocation, "End location");
+      date = validator.checkString(date, "Date");
+      seatsRequired = validator.checkNumber(seatsRequired, "Seats required");
+      minPrice = validator.checkNumber(minPrice, "Minimum price");
+      maxPrice = validator.checkNumber(maxPrice, "Maximum price");
+      if(minPrice > maxPrice) {
+        throw new Error("Minimum price cannot be greater than maximum price.");
+      }
+      if(startLocation === endLocation) {
+        throw new Error("Start and end locations cannot be the same.");
+      }
+      if(!locations.includes(startLocation) || !locations.includes(endLocation)) {
+        throw new Error("Invalid location.");
+      }
+    } catch (error) {
+      return res.status(400).render("error", {
+        message: error.message,
       });
     }
 
