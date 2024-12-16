@@ -221,12 +221,9 @@ router.get("/rideinfo/:id", ensureAuthenticated, (req, res) => {
       ride: ride,
       isError: false,
       booked: false,
-<<<<<<< Updated upstream
       ridersList: ridersList,
-      waitList: waitList
-=======
+      waitList: waitList,
       showNav: true,
->>>>>>> Stashed changes
     });
   } catch (e) {
     return res.status(400).render("error", {
