@@ -65,6 +65,11 @@ router.post("/post", ensureAuthenticated, async (req, res) => {
         message: "Origin and destination must be valid locations!",
       });
     }
+    if (validatedOrigin === validatedDestination) {
+      return res.status(400).render("error", {
+        message: "Origin and destination cannot be the same!",
+      });
+    }
     const validatedSeats = validator.checkNumber(seats, "Seats");
     if (!carTypes.get(carType)) {
       return res.status(400).render("error", {
