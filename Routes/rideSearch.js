@@ -3,6 +3,7 @@ import { ridePost, users } from "../config/mongoCollection.js";
 import { ObjectId } from "mongodb";
 import dayjs from "dayjs";
 import validator from "../helper.js";
+import { locations } from "../constants.js";
 
 const router = express.Router();
 
@@ -11,17 +12,17 @@ const ensureAuthenticated = (req, res, next) => {
   if (req.session && req.session.user) {
     next();
   } else {
-    res.redirect("/login");
+    res.redirect("/login", { showNav: false });
   }
 };
 
 router.get("/", ensureAuthenticated, (req, res) => {
-  res.render("rideSearch", { title: "Ride Search", user: req.session.user });
+  res.render("rideSearch", { title: "Ride Search", user: req.session.user, showNav: true });
 });
 
 router.post("/", ensureAuthenticated, async (req, res) => {
   try {
-    const {
+    let {
       startLocation,
       endLocation,
       date,
@@ -43,6 +44,28 @@ router.post("/", ensureAuthenticated, async (req, res) => {
     ) {
       return res.status(400).render("error", {
         message: "All fields are required.",
+      });
+    }
+
+    try {
+      startLocation = validator.checkString(startLocation, "Start location");
+      endLocation = validator.checkString(endLocation, "End location");
+      date = validator.checkString(date, "Date");
+      seatsRequired = validator.checkNumber(seatsRequired, "Seats required");
+      minPrice = validator.checkNumber(minPrice, "Minimum price");
+      maxPrice = validator.checkNumber(maxPrice, "Maximum price");
+      if(minPrice > maxPrice) {
+        throw new Error("Minimum price cannot be greater than maximum price.");
+      }
+      if(startLocation === endLocation) {
+        throw new Error("Start and end locations cannot be the same.");
+      }
+      if(!locations.includes(startLocation) || !locations.includes(endLocation)) {
+        throw new Error("Invalid location.");
+      }
+    } catch (error) {
+      return res.status(400).render("error", {
+        message: error.message,
       });
     }
 
@@ -111,6 +134,7 @@ router.post("/", ensureAuthenticated, async (req, res) => {
       title: "Available Rides",
       hasRides: ridesWithDetails.length > 0,
       rides: ridesWithDetails,
+      showNav: true,
     });
   } catch (error) {
     console.error("Error during ride search:", error);

@@ -2,9 +2,10 @@ import express from "express";
 import validator from "../helper.js";
 import bcrypt from "bcrypt";
 import usersData from "../data/users.js";
-import isAuthenticated from "../middleware/authMiddleware.js";
+//import isAuthenticated from "../middleware/authMiddleware.js";
 import rideData from "../data/rides.js";
 import { sendEmail } from "./utils/mailer.js";
+import bookRide from "../data/bookRide.js";
 import {
   rideRequests,
   ridePost,
@@ -22,7 +23,7 @@ const ensureAuthenticated = (req, res, next) => {
 };
 
 router.get("/signup", (req, res) => {
-  res.render("signup", { title: "Sign Up" });
+  res.render("signup", { title: "Sign Up", showNav: false });
 });
 
 router.post("/signup", async (req, res) => {
@@ -114,7 +115,7 @@ router.get("/login", (req, res) => {
   if (req.session.user) {
     return res.redirect("/dashboard");
   }
-  res.render("login", { title: "Login" });
+  res.render("login", { title: "Login", showNav: false });
 });
 
 router.post("/login", async (req, res) => {
@@ -153,7 +154,7 @@ router.get("/logout", (req, res) => {
 });
 
 router.get("/", ensureAuthenticated, (req, res) => {
-  res.render("dashboard", { title: "Dashboard", user: req.session.user });
+  res.render("dashboard", { title: "Dashboard", user: req.session.user, showNav: true });
 });
 
 router.get("/profile", ensureAuthenticated, async (req, res) => {
@@ -197,6 +198,7 @@ router.get("/profile", ensureAuthenticated, async (req, res) => {
         ridesGiven: user.number_of_rides_given || 0,
         reportsMade: user.number_of_rides_made || 0,
       },
+      showNav: true,
     });
   } catch (error) {
     console.error(error);
@@ -208,11 +210,25 @@ router.get("/profile", ensureAuthenticated, async (req, res) => {
 
 router.get("/rideinfo/:id", ensureAuthenticated, (req, res) => {
   try {
+    const ride = rideData.getRide(req.params.id),
+    ridersList = [], waitList = [];
+    for (let i = 0; i < ride.ridersList.length; i++) {
+      let user = usersData.findById(ride.ridersList[i]);
+      ridersList.push(user.username);
+    }
+    for (let i = 0; i < ride.waitList.length; i++) {
+      let user = usersData.findById(ride.waitList[i]);
+      waitList.push(user.username);
+    }
+
     res.render("rideInfo", {
       title: "Ride Info",
-      ride: rideData.getRide(req.params.id),
+      ride: ride,
       isError: false,
-      booked: false
+      booked: false,
+      ridersList: ridersList,
+      waitList: waitList,
+      showNav: true,
     });
   } catch (e) {
     return res.status(400).render("error", {
@@ -223,10 +239,10 @@ router.get("/rideinfo/:id", ensureAuthenticated, (req, res) => {
 });
 router.post("/rideinfo/:id", ensureAuthenticated, (req, res) => {
   try {
-    rideData.bookRide(req.params.id, req.session.user.username);
+    bookRide(req.params.id, req.session.user._id);
     return res.redirect("/rideinfo", {
-      ride: rideData.getRide(req.params.id),
-      isError: false,
+//    ride: rideData.getRide(req.params.id),
+//    isError: false,
       booked: true
     });
   } catch (e) {

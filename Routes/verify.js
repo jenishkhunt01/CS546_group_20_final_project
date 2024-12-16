@@ -9,9 +9,9 @@ const router = express.Router();
 
 router.get("/", isAuthenticated, (req, res) => {
   if (req.session.user.isVerified) {
-    return res.redirect("/ridePost");
+    return res.redirect("/ridePost", { showNav: true });
   }
-  return res.render("verify", { title: "Verify DL", user: req.session.user });
+  return res.render("verify", { title: "Verify DL", user: req.session.user, showNav: true });
 });
 
 router.post("/", isAuthenticated, async (req, res) => {

@@ -13,7 +13,7 @@ const ensureAuthenticated = (req, res, next) => {
   if (req.session && req.session.user) {
     next();
   } else {
-    res.redirect("/login");
+    res.redirect("/login", { showNav: false });
   }
 };
 
@@ -21,7 +21,7 @@ router.get("/", ensureAuthenticated, (req, res) => {
   if (!req.session.user.isVerified) {
     return res.redirect("/verify");
   }
-  res.render("ridePost", { title: "Ride Post", user: req.session.user });
+  res.render("ridePost", { title: "Ride Post", user: req.session.user, showNav: true, });
 });
 
 router.post("/post", ensureAuthenticated, async (req, res) => {
@@ -57,13 +57,33 @@ router.post("/post", ensureAuthenticated, async (req, res) => {
       destination,
       "Destination"
     );
-    if (!locations.includes(validatedOrigin) || !locations.includes(validatedDestination)) {
+    if (
+      !locations.includes(validatedOrigin) ||
+      !locations.includes(validatedDestination)
+    ) {
       return res.status(400).render("error", {
-      message: "Origin and destination must be valid locations!",
+        message: "Origin and destination must be valid locations!",
       });
     }
-    const validatedSeats = parseInt(seats);
-    const validatedAmount = parseFloat(amount);
+    if (validatedOrigin === validatedDestination) {
+      return res.status(400).render("error", {
+        message: "Origin and destination cannot be the same!",
+      });
+    }
+    const validatedSeats = validator.checkNumber(seats, "Seats");
+    if (!carTypes.get(carType)) {
+      return res.status(400).render("error", {
+        message: "Car type must be valid!",
+      });
+    }
+    if (carTypes.get(carType) < validatedSeats) {
+      return res.status(400).render("error", {
+        message: "Car type must have enough seats!",
+      });
+    }
+    const validatedAmount = validator.checkNumber(amount, "Amount");
+    let validatedDate = validator.checkDate(date, "Date");
+    const validatedTime = validator.checkTime(time, "Time");
 
     if (validatedSeats <= 0 || validatedAmount <= 0) {
       return res.status(400).render("error", {
@@ -101,7 +121,7 @@ router.post("/post", ensureAuthenticated, async (req, res) => {
       driverId: driverId,
       origin: validatedOrigin,
       destination: validatedDestination,
-      date,
+      date: validatedDate,
       time,
       seats: validatedSeats,
       amount: validatedAmount,

@@ -1,5 +1,7 @@
 import express from "express";
 import moment from "moment";
+import xss from "xss";
+import { ObjectId } from "mongodb";
 
 function isValidEmail(email, varName) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -43,6 +45,7 @@ function checkString(strVal, varName) {
   // if (!isNaN(strVal)){
   //   throw `Error: ${strVal} is not a valid value for ${varName} as it only contains digits`;
   // }
+  strVal = xss(strVal);
   return strVal;
 }
 
