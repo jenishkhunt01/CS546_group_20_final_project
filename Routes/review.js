@@ -42,6 +42,7 @@ router.get("/", async (req, res) => {
       user: user,
       reviewer: reviewer,
       rideId: rideId,
+      showNav: true,
     });
   } catch (e) {
     return res.status(500).render("review", {

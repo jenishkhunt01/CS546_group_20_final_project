@@ -66,7 +66,8 @@ router.get("/:rideId", async (req, res) => {
       riderUsername: user.username,
       chat: chatSession,
       user, 
-      requestExists: !!existingRequest, 
+      requestExists: !!existingRequest,
+      showNav: true, 
     });
   } catch (err) {
     console.error("Error during chat initialization:", err);
@@ -114,7 +115,8 @@ router.get("/session/:chatId", async (req, res) => {
       driverUsername: chatSession.driver,
       riderUsername: chatSession.rider,
       chat: chatSession,
-      user, 
+      user,
+      showNav: true, 
     });
   } catch (err) {
     console.error("Error during chat initialization:", err);

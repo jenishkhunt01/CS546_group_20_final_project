@@ -18,7 +18,7 @@ const ensureAuthenticated = (req, res, next) => {
 };
 
 router.get("/signup", (req, res) => {
-  res.render("signup", { title: "Sign Up" });
+  res.render("signup", { title: "Sign Up", showNav: false });
 });
 
 router.post("/signup", async (req, res) => {
@@ -110,7 +110,7 @@ router.get("/login", (req, res) => {
   if (req.session.user) {
     return res.redirect("/dashboard");
   }
-  res.render("login", { title: "Login" });
+  res.render("login", { title: "Login", showNav: false });
 });
 
 router.post("/login", async (req, res) => {
@@ -149,7 +149,7 @@ router.get("/logout", (req, res) => {
 });
 
 router.get("/", ensureAuthenticated, (req, res) => {
-  res.render("dashboard", { title: "Dashboard", user: req.session.user });
+  res.render("dashboard", { title: "Dashboard", user: req.session.user, showNav: true });
 });
 
 router.get("/profile", ensureAuthenticated, async (req, res) => {
@@ -193,6 +193,7 @@ router.get("/profile", ensureAuthenticated, async (req, res) => {
         ridesGiven: user.number_of_rides_given || 0,
         reportsMade: user.number_of_rides_made || 0,
       },
+      showNav: true,
     });
   } catch (error) {
     console.error(error);
@@ -220,8 +221,12 @@ router.get("/rideinfo/:id", ensureAuthenticated, (req, res) => {
       ride: ride,
       isError: false,
       booked: false,
+<<<<<<< Updated upstream
       ridersList: ridersList,
       waitList: waitList
+=======
+      showNav: true,
+>>>>>>> Stashed changes
     });
   } catch (e) {
     return res.status(400).render("error", {

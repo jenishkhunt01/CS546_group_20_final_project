@@ -8,7 +8,7 @@ const ensureAuthenticated = (req, res, next) => {
   if (req.session?.user) {
     next();
   } else {
-    res.redirect("/login");
+    res.redirect("/login", { showNav: false });
   }
 };
 
@@ -28,6 +28,7 @@ router.get("/", ensureAuthenticated, async (req, res) => {
       rides,
       user: req.session?.user,
       stars: [1, 2, 3, 4, 5],
+      showNav: true,
     });
   } catch (error) {
     console.error("Error fetching ride history:", error);

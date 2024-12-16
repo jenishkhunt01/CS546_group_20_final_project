@@ -8,7 +8,7 @@ const ensureAuthenticated = (req, res, next) => {
   if (req.session?.user) {
     next();
   } else {
-    res.redirect("/login");
+    res.redirect("/login", { showNav: false });
   }
 };
 
@@ -49,7 +49,7 @@ router.post("/", ensureAuthenticated, async (req, res) => {
 
     await rideRequestsCollection.insertOne(request);
 
-    res.redirect("/dashboard");
+    res.redirect("/dashboard",{ showNav: true });
   } catch (err) {
     console.error("Error requesting ride:", err);
     res.status(500).render("error", {
