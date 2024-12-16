@@ -7,7 +7,6 @@ import {
 
 import { chatCleanup } from "./utils/chatCleanup.js";
 import { ObjectId } from "mongodb";
-import e from "express";
 
 const router = express.Router();
 
