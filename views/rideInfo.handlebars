@@ -2,7 +2,7 @@
 	<script>
 		document.title = "Ride Info";
 	</script>
-	<h1 class="text-2xl font-bold text-blue-600 mb-6">Ride Info</h1>
+	<h1 class="text-2xl font-bold text-blue-600 mb-6">{{ride.carType}}</h1>
 
 	{{#if isError}}
 	<p class="error">{{error}}</p>
@@ -19,14 +19,8 @@
 			<dt>Time</dt>
 			<dd>{{ride.time}}</dd>
 
-			<dt>Car type</dt>
-			<dd>{{ride.carType}}</dd>
-
-			<dt>From</dt>
-			<dd>{{ride.startLocation}}</dd>
-
-			<dt>To</dt>
-			<dd>{{ride.endLocation}}</dd>
+			<dt>Locations</dt>
+			<dd>{{ride.startLocation}} to {{ride.endLocation}}</dd>
 
 			<dt>Available seats</dt>
 			<dd>{{ride.seatsAvailable}}</dd>
@@ -42,16 +36,16 @@
 			{{/if}}
 
 			<dt>Riders</dt>
-			{{#each ride.ridersList}}
-			<dd>{{this.username}}</dd>
+			{{#each ridersList}}
+			<dd>{{this}}</dd>
 			{{/each}}
 
 			<dt>Waitlist</dt>
-			{{#each ride.waitList}}
-			<dd>{{this.username}}</dd>
+			{{#each waitList}}
+			<dd>{{this}}</dd>
 			{{/each}}
 
-			<form id="bookRideButton" method="post" action="/rideInfo">
+			<form id="bookRideButton" method="post" action="/rideinfo">
 				<button type="submit"
 				class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
 					Book Ride

@@ -1,5 +1,6 @@
 import { users } from "../config/mongoCollection.js";
 import validator from "../helper.js";
+import {ObjectId} from "mongodb";
 
 async function addUser(user) {
   let firstname = user.firstname;
@@ -64,12 +65,6 @@ export async function findByUsername(username) {
   return user;
 }
 
-const usersData = {
-  addUser,
-  findByUsername,
-  findByEmail,
-};
-
 async function findByEmail(email) {
   if (!email) throw new Error("No email was provided");
 
@@ -78,5 +73,27 @@ async function findByEmail(email) {
 
   return user;
 }
+
+const findById = async (id) => {
+  if (!id)
+    throw "Error: no ID provided";
+  if (!ObjectId.isValid(id))
+    throw "Error: not a valid object ID";
+
+  const userCollection = await users();
+  const user = userCollection.findOne({
+    _id: ObjectId.createFromHexString(id)
+  });
+  if (!user)
+    throw "Error: no such user with that ID";
+  return user;
+};
+
+const usersData = {
+  addUser,
+  findByUsername,
+  findByEmail,
+  findById
+};
 
 export default usersData;

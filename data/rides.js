@@ -1,8 +1,8 @@
-import { ride, users } from "../config/mongoCollection.js";
+import { ridePost, users } from "../config/mongoCollection.js";
 import validator from "../helper.js";
-import moment from "moment";
+//import moment from "moment";
 import {ObjectId} from "mongodb";
-import {findByUsername} from "./users.js";
+//import {findByUsername} from "./users.js";
 
 async function addDrivingLicense(license, licenseImg, res, req) {
   try {
@@ -41,7 +41,7 @@ const getRide = async (id) => {
   if (!ObjectId.isValid(id))
     throw "Error: not a valid object ID";
 
-  const collection = await ride();
+  const collection = await ridePost();
   const ride = await collection.findOne({
     _id: ObjectId.createFromHexString(id)
   });
@@ -49,7 +49,7 @@ const getRide = async (id) => {
     throw "Error: no such ride with that ID";
   return ride;
 };
-
+/*
 const bookRide = async (id, username) => {
   // adds user's name to the ride's waitlist
   const ride = getRide(id);
@@ -71,11 +71,10 @@ const bookRide = async (id, username) => {
   );
   return update;
 };
-
+*/
 const rideData = {
   addDrivingLicense,
-  getRide,
-  bookRide
+  getRide
 };
 
 export default rideData;
