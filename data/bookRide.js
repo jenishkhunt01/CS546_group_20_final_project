@@ -1,4 +1,4 @@
-import { ridePost } from "../config/mongoCollections.js";
+import { ridePost } from "../config/mongoCollection.js";
 import { ObjectId } from "mongodb";
 
 async function bookRide(rideId, passengerId) {

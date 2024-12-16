@@ -8,7 +8,7 @@ const ensureAuthenticated = (req, res, next) => {
   if (req.session?.user) {
     next();
   } else {
-    res.redirect("/login");
+    res.redirect("/login",{showNav: false});
   }
 };
 
@@ -47,6 +47,7 @@ router.get("/", ensureAuthenticated, async (req, res) => {
 
     res.render("postedRide", {
       postedRides: postedRidesWithChats,
+      showNav: true,
     });
   } catch (err) {
     console.error("Error fetching posted rides and chats:", err);

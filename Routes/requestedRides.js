@@ -14,7 +14,7 @@ const ensureAuthenticated = (req, res, next) => {
   if (req.session?.user) {
     next();
   } else {
-    res.redirect("/login");
+    res.redirect("/login", { showNav: false });
   }
 };
 
@@ -54,6 +54,7 @@ router.get("/", ensureAuthenticated, async (req, res) => {
 
     res.render("requestedRides", {
       requests: requestsWithRideDetails,
+      showNav: true
     });
   } catch (err) {
     console.error("Error fetching requested rides:", err);
@@ -77,11 +78,47 @@ router.post("/accept/:requestId", ensureAuthenticated, async (req, res) => {
       _id: new ObjectId(requestId),
       driver: user.username,
     });
+    let ridePostC = await ridePostCollection.findOne({
+      _id: new ObjectId(request.rideId),
+    });
 
     if (!request) {
       return res.status(404).render("error", {
         message: "Ride request not found.",
       });
+    }
+    let rider = request.rider;
+    let ridersList = ridePostC.riders;
+    if (!ridersList) {
+      ridersList = [];
+    }
+    ridersList.push(rider);
+    let seatsAvailable = ridePostC.seats;
+    if (seatsAvailable === 0) {
+      await ridePostCollection.updateOne(
+        { _id: new ObjectId(request.rideId) },
+        { $set: { isAvailable: false } }
+      );
+      return res.status(400).render("error", {
+        message: "No seats available.",
+      });
+    }
+    if (seatsAvailable === 1) {
+      await ridePostCollection.updateOne(
+        { _id: new ObjectId(request.rideId) },
+        {
+          $set: {
+            isAvailable: false,
+            riders: ridersList,
+            seats: seatsAvailable - 1,
+          },
+        }
+      );
+    } else {
+      await ridePostCollection.updateOne(
+        { _id: new ObjectId(request.rideId) },
+        { $set: { riders: ridersList, seats: seatsAvailable - 1 } }
+      );
     }
 
     // Update the request status to accepted
@@ -94,12 +131,6 @@ router.post("/accept/:requestId", ensureAuthenticated, async (req, res) => {
     await rideRequestsCollection.updateMany(
       { rideId: request.rideId, _id: { $ne: new ObjectId(requestId) } },
       { $set: { status: "waiting" } }
-    );
-
-    // Mark the ride as unavailable
-    await ridePostCollection.updateOne(
-      { _id: new ObjectId(request.rideId) },
-      { $set: { isAvailable: false } }
     );
 
     res.redirect("/requestedRides");

@@ -5,6 +5,7 @@ import {
   rideRequests,
 } from "../../config/mongoCollection.js";
 import { ObjectId } from "mongodb";
+import { reviewEmail } from "../../data/reviewEmail.js";
 
 export const chatCleanup = async () => {
   try {
@@ -30,13 +31,16 @@ export const chatCleanup = async () => {
         amount: ride.amount,
         seats: ride.seats,
         status: ride.status,
-        driver: ride.driver,
-        rider: ride.rider,
+        driver: ride.driverId,
+        riders: ride.riders,
         createdAt: ride.createdAt,
         archivedAt: currentDate,
       }));
 
-      await rideHistoryCollection.insertMany(archivedRides);
+      const result = await rideHistoryCollection.insertMany(archivedRides);
+      const insertedIds = result.insertedIds;
+      const insertedIdsList = Object.values(insertedIds).map((id) => id);
+      const revResp = await reviewEmail(insertedIdsList);
 
       const rideIdsToCleanup = ridesToArchive.map((ride) =>
         ride._id.toString()
@@ -54,6 +58,12 @@ export const chatCleanup = async () => {
         rideId: { $in: rideIdsToCleanup },
       });
 
+      const rideIdsToCleanupObj = rideIdsToCleanup.map(
+        (id) => new ObjectId(id)
+      );
+      const resp = await ridePostCollection.deleteMany({
+        _id: { $in: rideIdsToCleanupObj },
+      });
       console.log(
         `Archived ${ridesToArchive.length} rides to rideHistory and cleaned up associated chat sessions.`
       );

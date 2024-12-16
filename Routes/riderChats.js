@@ -8,7 +8,7 @@ const ensureAuthenticated = (req, res, next) => {
   if (req.session?.user) {
     next();
   } else {
-    res.redirect("/login");
+    res.redirect("/login", { showNav: false });
   }
 };
 
@@ -63,7 +63,7 @@ router.get("/", ensureAuthenticated, async (req, res) => {
 
     const filteredChats = riderChats.filter((chat) => chat !== null);
 
-    res.render("riderChats", { chats: filteredChats });
+    res.render("riderChats", { chats: filteredChats, showNav: true });
   } catch (err) {
     console.error("Error fetching rider chats:", err);
     res.status(500).render("error", {

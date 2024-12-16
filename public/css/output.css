@@ -349,6 +349,7 @@ button,
 input:where([type='button']),
 input:where([type='reset']),
 input:where([type='submit']) {
+  appearance: button;
   -webkit-appearance: button;
   /* 1 */
   background-color: transparent;
@@ -396,6 +397,7 @@ Correct the cursor style of increment and decrement buttons in Safari.
 */
 
 [type='search'] {
+  appearance: textfield;
   -webkit-appearance: textfield;
   /* 1 */
   outline-offset: -2px;
@@ -536,7 +538,7 @@ embed,
 object {
   display: block;
   /* 1 */
-  vertical-align: middle;
+/*  vertical-align: middle; */
   /* 2 */
 }
 
@@ -869,7 +871,461 @@ body {
   position:  absolute ;
   bottom: 0px;
   width: 100%;
+  padding: 10px;
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: #c0392b;
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  background-color: #f5f5f5;
+  overflow-y: auto;
+}
+
+/* Ensure the footer sticks at the bottom */
+footer {
+  background-color: #34495e;
+  color: #ecf0f1;
+  text-align: center;
+  padding: 10px 0;
+  position: relative;
+  width: 100%;
+  margin-top: auto;
+}
+
+/* Main Content */
+/* .main-content {
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #ffffff;
+  overflow-y: auto;
+} */
+
+.main-content h1 {
+  font-size: 28px;
+  color: #1e3a8a;
+  margin-bottom: 10px;
+}
+
+.main-content p {
+  font-size: 16px;
+  color: #4b5563;
+}
+
+/* Responsive Enhancements */
+@media screen and (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .main-content {
+    padding: 10px;
+  }
+}
+
+
+/* Base Styling */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 0;
+}
+
+/* Center content with a max width */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  /* background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+}
+
+
+/* Headings */
+h1 {
+  font-size: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  h1 {
+    font-size: 2rem;
+  }
+}
+
+/* Form Fields */
+input,
+select {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+input:focus,
+select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Button */
+button {
+  padding: 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.75rem;
+  }
+
+  input,
+  select {
+    font-size: 14px;
+  }
+
+  button {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  button {
+    padding: 10px;
+    font-size: 14px;
+  }
+}
+
+
+/* Title styling */
+.title {
+  font-size: 2rem;
+  color: #1e3a8a; /* Deep Blue */
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+/* Rides container */
+.rides-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
   justify-content: center;
+}
+
+/* Ride card styling */
+.ride-card {
+  border: 1px solid #d1d5db; /* Light Gray */
+  border-radius: 10px;
+  padding: 15px;
+  width: 300px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Driver-specific card */
+.driver-card {
+  background-color: #e0f7fa; /* Light Blue */
+  border-left: 5px solid #00796b; /* Teal */
+}
+
+.driver-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Rider-specific card */
+.rider-card {
+  background-color: #ffebee; /* Light Pink */
+  border-left: 5px solid #b71c1c; /* Red */
+}
+
+.rider-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Ride details styling */
+.ride-details p {
+  margin: 5px 0;
+  color: #374151; /* Grayish Black */
+  font-size: 14px;
+}
+
+.label {
+  font-weight: bold;
+  color: #1e3a8a; /* Deep Blue */
+}
+
+/* Cancel form styling */
+.cancel-form {
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* Cancel button styling */
+.cancel-button {
+  background-color: #ef4444; /* Red */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cancel-button:hover {
+  background-color: #dc2626; /* Darker Red */
+}
+
+/* No rides styling */
+.no-rides {
+  text-align: center;
+  color: #6b7280; /* Medium Gray */
+  font-size: 16px;
+}
+
+/* For tablets */
+@media (max-width: 768px) {
+  .rides-container {
+    justify-content: center;
+  }
+
+  .ride-card {
+    width: 90%; /* Adjust card width for smaller screens */
+  }
+}
+
+/* For mobile phones */
+@media (max-width: 480px) {
+  .title {
+    font-size: 1.5rem; /* Smaller title size for mobiles */
+  }
+
+  .ride-details p {
+    font-size: 12px; /* Adjust text size */
+  }
+
+  .cancel-button {
+    padding: 8px 16px; /* Smaller button for smaller screens */
+  }
+}
+
+
+.requested-rides-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Title */
+.page-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #007bff;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Ride List */
+.ride-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Individual Ride */
+.ride-item {
+  background-color: #f9f9f9;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #007bff;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ride-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Ride Details */
+.ride-details p {
+  margin: 5px 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+}
+
+/* Buttons Section */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 15px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-accept {
+  background-color: #28a745;
+}
+
+.btn-accept:hover {
+  background-color: #218838;
+}
+
+.btn-reject {
+  background-color: #dc3545;
+}
+
+.btn-reject:hover {
+  background-color: #c82333;
+}
+
+/* No Requests Message */
+.no-requests-message {
+  font-size: 16px;
+  text-align: center;
+  color: #666;
+  margin-top: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .requested-rides-container {
+    padding: 15px;
+  }
+
+  .ride-details p {
+    font-size: 14px;
+  }
+
+  .btn {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+}
+
+
+
+.posted-rides-container {
+  max-width: 900px;
+  margin: 20px auto;
+  background-color: #ffffff;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Page Title */
+.page-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #007bff;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Ride List Styling */
+.ride-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ride-item {
+  background: #f9f9f9;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-left: 6px solid #007bff;
+  border-radius: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ride-item:hover {
+  transform: scale(1.03);
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Ride Details */
+.ride-details p {
+  margin: 8px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.ride-route {
+  font-size: 18px;
+  color: #007bff;
+  margin-bottom: 10px;
+}
+
+/* Chats Section */
+.chat-heading {
+  font-size: 18px;
+  font-weight: bold;
+  color: #007bff;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.chat-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.chat-item {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
 } */
 
@@ -1833,7 +2289,13 @@ button:hover {
   color: #555;
 }
 
-.chat-button {
+.button-container{
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.chat-button, .review-button {
   display: inline-block;
   background: #1a73e8;
   color: #fff;
@@ -1848,7 +2310,7 @@ button:hover {
   margin-top: 15px;
 }
 
-.chat-button:hover {
+.chat-button:hover, .chat-button:hover {
   background: #135cbf;
 }
 
@@ -2184,4 +2646,133 @@ button:hover {
   font-size: 2rem;
   font-weight: bold;
   color: #101112;
+}
+
+.cancelled {
+  color: #ff8800;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  z-index: 10;
+  inset: 0;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  max-width: 32rem;
+  width: 100%;
+  padding: 1.5rem;
+}
+
+.modal-title{
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1a202c;
+}
+
+.modal-label {
+  display: block;
+  color: #4a5568;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.modal-input {
+  width: 100%;
+  border: 1px solid #cbd5e0;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.modal-input:focus {
+  border-color: #3182ce;
+  box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
+}
+
+.modal-actions {
+  margin-top: 1rem;
+}
+
+.modal-button {
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+}
+
+.modal-button-primary {
+  background-color: #3182ce;
+  color: white;
+}
+
+.modal-button-primary:hover {
+  background-color: #2b6cb0;
+}
+
+.modal-button-secondary {
+  background-color: #718096;
+  color: white;
+  margin-left: 0.5rem;
+}
+
+.modal-button-secondary:hover {
+  background-color: #4a5568;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Safety Section */
+.safety-section {
+  margin-top: 30px;
+}
+
+.safety-title {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+
+.safety-section p {
+  margin: 10px 0;
+  font-size: 1.1rem;
+}
+
+.safety-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.safety-item {
+  background: #fff;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  align-items: center;
+  /* text-align: center; */
+
+}
+
+.safety-label {
+  font-weight: bold;
+  color: #555;
+}
+.safety-value {
+  font-size: 1.2rem;
+  color: #007bff;
+  text-align: right;
 }
