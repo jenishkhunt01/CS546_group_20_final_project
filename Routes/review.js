@@ -1,7 +1,7 @@
 import express from "express";
 import { ObjectId } from "mongodb";
 import validator from "../helper.js";
-import { users } from "../config/mongoCollection.js";
+import { users, rideHistory } from "../config/mongoCollection.js";
 const router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -9,7 +9,7 @@ router.get("/", async (req, res) => {
   try {
     reviewer = validator.checkString(reviewer, "Reviewer");
     user = validator.checkString(user, "User");
-    // rideId = validator.isValidId(rideId, "Ride ID");
+    rideId = validator.isValidId(rideId, "Ride ID");
   } catch (e) {
     return res.status(400).render("review", {
       reviewer,
@@ -38,7 +38,6 @@ router.get("/", async (req, res) => {
         error: "Reviewer not found",
       });
     }
-
     return res.render("review", {
       user: user,
       reviewer: reviewer,
@@ -63,7 +62,7 @@ router.post("/", async (req, res) => {
   try {
     reviewer = validator.checkString(reviewer, "Reviewer");
     user = validator.checkString(user, "User");
-    // rideId = validator.isValidId(rideId, "Ride ID");
+    rideId = validator.isValidId(rideId, "Ride ID");
     rating = validator.checkNumber(rating, "Rating");
     if (rating < 1 || rating > 5) {
       throw "Rating should be between 1 and 5";
@@ -88,10 +87,41 @@ router.post("/", async (req, res) => {
     if (!reviewerData) {
       throw new Error("Reviewer not found");
     }
-
+    let rideHistoryCollection = await rideHistory();
+    let rideHist = await rideHistoryCollection.findOne({
+      _id: new ObjectId(rideId),
+    });
+    if (!rideHist) {
+      return res.status(400).render("review", {
+        reviewer,
+        user,
+        rideId,
+        error: "Ride not found",
+      });
+    }
+    if (rideHist.driver !== user || rideHist.riders.indexOf(reviewer) === -1) {
+      console.log(rideHist.driver, user, rideHist.riders, reviewer);
+      return res.status(400).render("review", {
+        reviewer,
+        user,
+        rideId,
+        error: "You are not the driver or rider of this ride",
+      });
+    }
     let reviewsList = userData.reviews;
     if (!reviewsList) {
       reviewsList = [];
+    } else {
+      for (let review of reviewsList) {
+        if (review.rideId === rideId) {
+          return res.status(400).render("review", {
+            reviewer,
+            user,
+            rideId,
+            error: "Review already submitted",
+          });
+        }
+      }
     }
     reviewsList.push({
       rideId: rideId,
