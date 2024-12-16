@@ -1,4 +1,4 @@
-<main class="ride-history-container">
+<div class="ride-history-container">
   <h1 class="ride-history-title">Ride History</h1>
 
   {{#if rides.length}}
@@ -69,7 +69,7 @@
   {{else}}
     <p class="no-rides-message">No rides found in your history.</p>
   {{/if}}
-</main>
+</div>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
