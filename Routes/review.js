@@ -140,4 +140,65 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/:rideId", async (req, res) => {
+  try {
+    const rideId = req.params.rideId;
+    console.log("This is the ride id", rideId);
+    const userCollection = await users();
+    const userData = await userCollection.findOne({
+      reviews: {
+        $elemMatch: {
+          rideId: rideId,
+        },
+      },
+    });
+    console.log("THis is the user data", userData);
+    console.log("THis is the user data", userData.reviews);
+
+    if (!userData) {
+      return res.status(404).render("error", {
+        error: "Driver not found",
+        title: "Error",
+      });
+    }
+    if (!userData.reviews) {
+      return res.status(404).render("error", {
+        error: "Riviews not found",
+        title: "Error",
+      });
+    }
+
+    if (userData && userData.reviews) {
+      const allReviews = userData.reviews.map((review) => {
+        console.log("4. Processing review:", {
+          rideId: review.rideId,
+          reviewer: review.reviewer,
+          rating: review.rating,
+          comment: review.comment,
+        });
+        return {
+          rideId: review.rideId,
+          reviewer: review.reviewer,
+          rating: review.rating,
+          comment: review.comment,
+        };
+      });
+
+      res.render("driverReviews", {
+        title: `Reviews for Driver`,
+        driver: userData.username,
+        reviews: allReviews,
+        hasReviews: allReviews.length > 0,
+        error: null,
+        rideId: rideId
+      });
+    }
+  } catch (e) {
+    return res.status(500).render("error", {
+      error: e.message,
+      title: "Error",
+    });
+  }
+});
+
 export default router;

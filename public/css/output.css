@@ -2289,7 +2289,13 @@ button:hover {
   color: #555;
 }
 
-.chat-button {
+.button-container{
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.chat-button, .review-button {
   display: inline-block;
   background: #1a73e8;
   color: #fff;
@@ -2304,7 +2310,7 @@ button:hover {
   margin-top: 15px;
 }
 
-.chat-button:hover {
+.chat-button:hover, .chat-button:hover {
   background: #135cbf;
 }
 
