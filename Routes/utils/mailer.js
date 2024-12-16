@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
-
+import { users } from "../../config/mongoCollection.js";
 dotenv.config();
 
 // Create a nodemailer transporter
@@ -19,9 +19,9 @@ const transporter = nodemailer.createTransport({
  */
 export const sendEmail = async (to, subject, htmlContent) => {
   const mailOptions = {
-    from: `"Mail" <${process.env.EMAIL_USERNAME}>`, 
-    to, 
-    subject, 
+    from: `"Mail" <${process.env.EMAIL_USERNAME}>`,
+    to,
+    subject,
     html: htmlContent,
   };
 
@@ -36,8 +36,8 @@ export const sendEmail = async (to, subject, htmlContent) => {
 
 /**
  * @param {Object} rideDetails
- * @param {Object} driverDetails 
- * @param {Object} riderDetails 
+ * @param {Object} driverDetails
+ * @param {Object} riderDetails
  */
 export const sendRideConfirmationEmails = async (
   rideDetails,
@@ -120,7 +120,6 @@ export const sendRideReminderEmails = async (
     <p>Drive safely!</p>
   `;
 
-  
   await sendEmail(
     riderDetails.email,
     "Upcoming Ride Reminder",
@@ -131,4 +130,22 @@ export const sendRideReminderEmails = async (
     "Upcoming Ride Reminder",
     driverReminderContent
   );
+};
+
+/**
+ * @param {Object} rideDetails
+ */
+
+export const sendRideReviewEmail = async (rideDetails) => {
+  for (let reviewee of rideDetails.riders) {
+    const reviewFormUrl = `http://localhost:3000/review/?reviewer=${reviewee}&user=${rideDetails.driver}&rideId=${rideDetails._id}`;
+    const emailContent = ` 
+    <h2>Ride Review</h2>
+    <p>We hope you had a great ride! Please take a moment to provide your feedback by filling out the review form:</p>
+    <p><a href="${reviewFormUrl}">Ride Review Form : ${reviewFormUrl}</a></p>
+    <p>Thank you for your feedback!</p>`;
+    let user = await users();
+    let userDetails = await user.findOne({ username: reviewee });
+    await sendEmail(userDetails.email, "Ride Review", emailContent);
+  }
 };
