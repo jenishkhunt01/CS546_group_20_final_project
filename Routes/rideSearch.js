@@ -29,8 +29,6 @@ router.post("/", ensureAuthenticated, async (req, res) => {
       });
     }
 
-    // Validate the time format (HH:mm)
-
     const riderTime = dayjs(`${date} ${time}`, "YYYY-MM-DD HH:mm", true);
     if (!riderTime.isValid()) {
       return res.status(400).render("error", {
@@ -38,7 +36,6 @@ router.post("/", ensureAuthenticated, async (req, res) => {
       });
     }
 
-    // Create a one-hour time window around the requested time
     const timeLowerBound = riderTime.subtract(1, "hour").format("HH:mm");
     const timeUpperBound = riderTime.add(1, "hour").format("HH:mm");
 

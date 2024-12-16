@@ -14,7 +14,7 @@ const ensureAuthenticated = (req, res, next) => {
 
 router.get("/", ensureAuthenticated, async (req, res) => {
   try {
-    const user = req.session.user; 
+    const user = req.session?.user;
     const chatSessionCollection = await chatSessions();
     const ridePostCollection = await ridePost();
     const userCollection = await users();
@@ -40,13 +40,14 @@ router.get("/", ensureAuthenticated, async (req, res) => {
 
         if (!driver) {
           console.warn(`Driver not found for driverId: ${ride.driverId}`);
-          return null; 
+          return null;
         }
 
         return {
           chatId: chat._id.toString(),
-          driver: driver.username, 
+          driver: driver.username,
           ride: {
+            rideId: ride._id.toString(),
             origin: ride.origin || "Unknown",
             destination: ride.destination || "Unknown",
             date: ride.date || "Unknown",
