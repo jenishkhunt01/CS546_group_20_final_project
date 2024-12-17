@@ -50,10 +50,6 @@ export const chatCleanup = async () => {
         rideId: { $in: rideIdsToCleanup },
       });
 
-      await ridePostCollection.deleteMany({
-        rideId: { $in: rideIdsToCleanup },
-      });
-
       await rideRequestsCollection.deleteMany({
         rideId: { $in: rideIdsToCleanup },
       });
