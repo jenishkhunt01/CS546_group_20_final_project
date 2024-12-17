@@ -29,21 +29,11 @@
 			<dd>${{ride.price}}</dd>
 
 			<dt>Cancelled?</dt>
-			{{#if ride.isCancelled}}
-			<dd class="cancelled">Yes</dd>
-			{{else}}
+			{{#if ride.isAvailable}}
 			<dd>No</dd>
+			{{else}}
+			<dd class="cancelled">Yes</dd>
 			{{/if}}
-
-			<dt>Riders</dt>
-			{{#each ridersList}}
-			<dd>{{this}}</dd>
-			{{/each}}
-
-			<dt>Waitlist</dt>
-			{{#each waitList}}
-			<dd>{{this}}</dd>
-			{{/each}}
 
 			<form id="bookRideButton" method="post" action="/rideinfo">
 				<button type="submit"

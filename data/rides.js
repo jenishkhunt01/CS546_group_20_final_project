@@ -49,29 +49,7 @@ const getRide = async (id) => {
     throw "Error: no such ride with that ID";
   return ride;
 };
-/*
-const bookRide = async (id, username) => {
-  // adds user's name to the ride's waitlist
-  const ride = getRide(id);
-  const user = findByUsername(username);
 
-  if (ride.isCancelled)
-    throw "Error: ride is cancelled";
-
-  const collection = await ride();
-  if (ride.ridersList.length < ride.seatsAvailable)
-    ride.ridersList.push(user);
-  else
-    ride.waitList.push(user);
-
-  const update = await collection.findOneAndReplace(
-    {_id: ObjectId.createFromHexString(id)},
-    ride,
-    {returnDocument: "after"}
-  );
-  return update;
-};
-*/
 const rideData = {
   addDrivingLicense,
   getRide

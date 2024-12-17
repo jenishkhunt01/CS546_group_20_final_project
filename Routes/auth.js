@@ -211,25 +211,11 @@ router.get("/profile", ensureAuthenticated, async (req, res) => {
 
 router.get("/rideinfo/:id", ensureAuthenticated, (req, res) => {
   try {
-    const ride = rideData.getRide(req.params.id),
-      ridersList = [],
-      waitList = [];
-    for (let i = 0; i < ride.ridersList.length; i++) {
-      let user = usersData.findById(ride.ridersList[i]);
-      ridersList.push(user.username);
-    }
-    for (let i = 0; i < ride.waitList.length; i++) {
-      let user = usersData.findById(ride.waitList[i]);
-      waitList.push(user.username);
-    }
-
     res.render("rideInfo", {
       title: "Ride Info",
-      ride: ride,
+      ride: rideData.getRide(req.params.id),
       isError: false,
       booked: false,
-      ridersList: ridersList,
-      waitList: waitList,
       showNav: true,
     });
   } catch (e) {
@@ -243,9 +229,8 @@ router.post("/rideinfo/:id", ensureAuthenticated, (req, res) => {
   try {
     bookRide(req.params.id, req.session.user._id);
     return res.redirect("/rideinfo", {
-      //    ride: rideData.getRide(req.params.id),
-      //    isError: false,
-      booked: true,
+      isError: false,
+      booked: true
     });
   } catch (e) {
     return res.redirect("/rideinfo", {
