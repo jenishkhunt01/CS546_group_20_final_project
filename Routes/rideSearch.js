@@ -133,6 +133,7 @@ router.post("/", ensureAuthenticated, async (req, res) => {
             : "Unknown",
           carType: ride.carType,
           description: ride.description,
+          driverId: ride.driverId,
         };
       })
     );

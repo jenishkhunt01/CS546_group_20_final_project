@@ -177,14 +177,8 @@ router.get("/:rideId", async (req, res) => {
     console.log("This is the ride id", rideId);
     const userCollection = await users();
     const userData = await userCollection.findOne({
-      reviews: {
-        $elemMatch: {
-          rideId: rideId,
-        },
-      },
+      username: rideId,
     });
-    console.log("THis is the user data", userData);
-    console.log("THis is the user data", userData.reviews);
 
     if (!userData) {
       return res.status(404).render("error", {
@@ -193,9 +187,9 @@ router.get("/:rideId", async (req, res) => {
       });
     }
     if (!userData.reviews) {
-      return res.status(404).render("error", {
-        error: "Riviews not found",
-        title: "Error",
+      return res.status(404).render("driverReviews", {
+        error: "Reviews not found",
+        title: "No reviews yet",
       });
     }
 
@@ -221,7 +215,7 @@ router.get("/:rideId", async (req, res) => {
         reviews: allReviews,
         hasReviews: allReviews.length > 0,
         error: null,
-        rideId: rideId
+        rideId: rideId,
       });
     }
   } catch (e) {
