@@ -30,7 +30,7 @@ export const chatCleanup = async () => {
         time: ride.time,
         amount: ride.amount,
         seats: ride.seats,
-        status: ride.status,
+        status: "Finished",
         driver: ride.driverId,
         riders: ride.riders,
         createdAt: ride.createdAt,
