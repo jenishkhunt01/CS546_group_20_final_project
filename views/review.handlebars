@@ -1,6 +1,6 @@
 <link rel="stylesheet" type="text/css" href="../public/css/styles.css" />
 <div class="review-container">
-  <h1>Review Your Driver : {{user}}</h2>
+  <h1>Review Your Driver : {{user}}</h1>
   {{#if error}}
     <div class="error-message">{{error}}</div>
   {{/if}}
@@ -12,7 +12,8 @@
     <input type="hidden" name="user" value="{{user}}">
     <input type="hidden" name = "rideId" value="{{rideId}}">
     <label for="rating" class="review-label">Rate the driver (1-5):</label>
-    <select id="rating" name="rating" required class="review-select">
+    <select id="rating" name="rating" class="review-select" required>
+      <option value="" disabled selected>Select a rating</option>
       <option value="1">1</option>
       <option value="2">2</option>
       <option value="3">3</option>
