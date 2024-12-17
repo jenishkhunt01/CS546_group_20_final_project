@@ -1,5 +1,5 @@
-<main class="rider-chats-container">
-  <h1 class="page-title">Your Chats</h1>
+<div class="requested-rides-container">
+  <h1 class="page-title">Requested Rides</h1>
 
   {{#if chats.length}}
     <ul class="chat-list">
@@ -28,67 +28,4 @@
   {{else}}
     <p class="no-chats-message">You have no chats at the moment.</p>
   {{/if}}
-</main>
-
-<style>
-  .rider-chats-container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .page-title {
-    text-align: center;
-    font-size: 2rem;
-    margin-bottom: 20px;
-    color: #333;
-  }
-
-  .chat-list {
-    list-style: none;
-    padding: 0;
-  }
-
-  .chat-item {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    padding: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  .chat-details p {
-    margin: 5px 0;
-  }
-
-  .chat-title {
-    margin: 10px 0;
-    color: #007bff;
-  }
-
-  .btn-primary {
-    display: inline-block;
-    padding: 8px 12px;
-    color: #fff;
-    background-color: #007bff;
-    border: none;
-    border-radius: 4px;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-
-  .btn-primary:hover {
-    background-color: #0056b3;
-  }
-
-  .no-chats-message {
-    text-align: center;
-    font-size: 1.2rem;
-    color: #555;
-  }
-</style>
+</div>
