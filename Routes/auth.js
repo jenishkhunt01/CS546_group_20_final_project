@@ -6,10 +6,7 @@ import usersData from "../data/users.js";
 import rideData from "../data/rides.js";
 import { sendEmail } from "./utils/mailer.js";
 import bookRide from "../data/bookRide.js";
-import {
-  rideRequests,
-  ridePost,
-} from "../config/mongoCollection.js";
+import { rideRequests, ridePost } from "../config/mongoCollection.js";
 import { ObjectId } from "mongodb";
 
 const router = express.Router();
@@ -127,7 +124,7 @@ router.post("/login", async (req, res) => {
       req.session.user = {
         id: user.id,
         username: user.username,
-        isVerified : user.isVerified,
+        isVerified: user.isVerified,
       };
       return res.redirect("/dashboard");
     } else {
@@ -154,7 +151,11 @@ router.get("/logout", (req, res) => {
 });
 
 router.get("/", ensureAuthenticated, (req, res) => {
-  res.render("dashboard", { title: "Dashboard", user: req.session.user, showNav: true });
+  res.render("dashboard", {
+    title: "Dashboard",
+    user: req.session.user,
+    showNav: true,
+  });
 });
 
 router.get("/profile", ensureAuthenticated, async (req, res) => {
@@ -211,7 +212,8 @@ router.get("/profile", ensureAuthenticated, async (req, res) => {
 router.get("/rideinfo/:id", ensureAuthenticated, (req, res) => {
   try {
     const ride = rideData.getRide(req.params.id),
-    ridersList = [], waitList = [];
+      ridersList = [],
+      waitList = [];
     for (let i = 0; i < ride.ridersList.length; i++) {
       let user = usersData.findById(ride.ridersList[i]);
       ridersList.push(user.username);
@@ -233,7 +235,7 @@ router.get("/rideinfo/:id", ensureAuthenticated, (req, res) => {
   } catch (e) {
     return res.status(400).render("error", {
       message: e,
-      title: "Ride Info"
+      title: "Ride Info",
     });
   }
 });
@@ -241,69 +243,71 @@ router.post("/rideinfo/:id", ensureAuthenticated, (req, res) => {
   try {
     bookRide(req.params.id, req.session.user._id);
     return res.redirect("/rideinfo", {
-//    ride: rideData.getRide(req.params.id),
-//    isError: false,
-      booked: true
+      //    ride: rideData.getRide(req.params.id),
+      //    isError: false,
+      booked: true,
     });
   } catch (e) {
     return res.redirect("/rideinfo", {
-      isError: true
+      isError: true,
     });
   }
 });
 
-router.post('/profile/shareTripStatus', ensureAuthenticated, async (req, res) => {
-  const { shareEmail } = req.body;
-  const user = req.session.user;
+router.post(
+  "/profile/shareTripStatus",
+  ensureAuthenticated,
+  async (req, res) => {
+    const { shareEmail } = req.body;
+    const user = req.session.user;
 
-  if (!shareEmail) {
-    return res.status(400).render('error', {
-      message: 'Email is required to share the trip status',
-      title: 'Error',
-    });
-  }
+    if (!shareEmail) {
+      return res.status(400).render("error", {
+        message: "Email is required to share the trip status",
+        title: "Error",
+      });
+    }
 
-  try {
-    const rideRequestsCollection = await rideRequests();
-    const ridePostCollection = await ridePost();
+    try {
+      const rideRequestsCollection = await rideRequests();
+      const ridePostCollection = await ridePost();
 
-    const acceptedRequests = await rideRequestsCollection
-      .find({
-        $or: [{ driver: user.username }, { rider: user.username }],
-        status: "accepted",
-      })
-      .toArray();
+      const acceptedRequests = await rideRequestsCollection
+        .find({
+          $or: [{ driver: user.username }, { rider: user.username }],
+          status: "accepted",
+        })
+        .toArray();
 
-    const upcomingRides = await Promise.all(
-      acceptedRequests.map(async (request) => {
-        const ride = await ridePostCollection.findOne({
-          _id: new ObjectId(request.rideId),
-        });
-
-        if (!ride) {
-          console.warn(`Ride not found for rideId: ${request.rideId}`);
-          return null;
-        }
-
-        const driverDetails = await usersData.findByUsername(request.driver);
-        const riderDetails = await usersData.findByUsername(request.rider);
-
-        if (!driverDetails) {
-          return res.status(404).render('error', {
-            message: 'Driver details not found',
-            title: 'Error',
+      const upcomingRides = await Promise.all(
+        acceptedRequests.map(async (request) => {
+          const ride = await ridePostCollection.findOne({
+            _id: new ObjectId(request.rideId),
           });
-        }
 
-        if (!riderDetails) {
-          return res.status(404).render('error', {
-            message: 'Rider details not found',
-            title: 'Error',
-          });
-        }
+          if (!ride) {
+            console.warn(`Ride not found for rideId: ${request.rideId}`);
+            return null;
+          }
 
-        
-        const emailContent = `
+          const driverDetails = await usersData.findByUsername(request.driver);
+          const riderDetails = await usersData.findByUsername(request.rider);
+
+          if (!driverDetails) {
+            return res.status(404).render("error", {
+              message: "Driver details not found",
+              title: "Error",
+            });
+          }
+
+          if (!riderDetails) {
+            return res.status(404).render("error", {
+              message: "Rider details not found",
+              title: "Error",
+            });
+          }
+
+          const emailContent = `
           <h2>Trip Status</h2>
           <p>${user.username} has shared their trip status with you.</p>
           <p>Current trip details:</p>
@@ -321,32 +325,32 @@ router.post('/profile/shareTripStatus', ensureAuthenticated, async (req, res) =>
             <li><strong>License Plate:</strong> ${driverDetails.driverDetails.license}</li>
           </ul>`;
 
-        
-        await sendEmail(shareEmail, "Trip Status Shared", emailContent);
+          await sendEmail(shareEmail, "Trip Status Shared", emailContent);
 
-        return {
-          rideId: request.rideId,
-          role: request.driver === user.username ? "Driver" : "Rider",
-          rider: request.rider,
-          driver: request.driver,
-          origin: ride.origin || "Unknown",
-          destination: ride.destination || "Unknown",
-          date: ride.date || "Unknown",
-          time: ride.time || "Unknown",
-          amount: ride.amount || "Unknown",
-          carType: ride.carType,
-        };
-      })
-    );
-    req.session.flash = { success: 'Trip status shared successfully!' };
-    res.redirect("/profile");
-  } catch (error) {
-    console.error("Error sharing trip status:", error);
-    res.status(500).render("error", {
-      message: "Unable to share trip status. Please try again later.",
-      title: "Error",
-    });
+          return {
+            rideId: request.rideId,
+            role: request.driver === user.username ? "Driver" : "Rider",
+            rider: request.rider,
+            driver: request.driver,
+            origin: ride.origin || "Unknown",
+            destination: ride.destination || "Unknown",
+            date: ride.date || "Unknown",
+            time: ride.time || "Unknown",
+            amount: ride.amount || "Unknown",
+            carType: ride.carType,
+          };
+        })
+      );
+      req.session.flash = { success: "Trip status shared successfully!" };
+      res.redirect("/profile");
+    } catch (error) {
+      console.error("Error sharing trip status:", error);
+      res.status(500).render("error", {
+        message: "Unable to share trip status. Please try again later.",
+        title: "Error",
+      });
+    }
   }
-});
+);
 
 export default router;

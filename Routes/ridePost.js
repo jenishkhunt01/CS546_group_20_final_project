@@ -13,7 +13,7 @@ const ensureAuthenticated = (req, res, next) => {
   if (req.session && req.session.user) {
     next();
   } else {
-    res.redirect("/login", { showNav: false });
+    res.redirect("/login");
   }
 };
 
@@ -21,7 +21,11 @@ router.get("/", ensureAuthenticated, (req, res) => {
   if (!req.session.user.isVerified) {
     return res.redirect("/verify");
   }
-  res.render("ridePost", { title: "Ride Post", user: req.session.user, showNav: true, });
+  res.render("ridePost", {
+    title: "Ride Post",
+    user: req.session.user,
+    showNav: true,
+  });
 });
 
 router.post("/post", ensureAuthenticated, async (req, res) => {

@@ -12,12 +12,16 @@ const ensureAuthenticated = (req, res, next) => {
   if (req.session && req.session.user) {
     next();
   } else {
-    res.redirect("/login", { showNav: false });
+    res.redirect("/login");
   }
 };
 
 router.get("/", ensureAuthenticated, (req, res) => {
-  res.render("rideSearch", { title: "Ride Search", user: req.session.user, showNav: true });
+  res.render("rideSearch", {
+    title: "Ride Search",
+    user: req.session.user,
+    showNav: true,
+  });
 });
 
 router.post("/", ensureAuthenticated, async (req, res) => {
@@ -54,13 +58,16 @@ router.post("/", ensureAuthenticated, async (req, res) => {
       seatsRequired = validator.checkNumber(seatsRequired, "Seats required");
       minPrice = validator.checkNumber(minPrice, "Minimum price");
       maxPrice = validator.checkNumber(maxPrice, "Maximum price");
-      if(minPrice > maxPrice) {
+      if (minPrice > maxPrice) {
         throw new Error("Minimum price cannot be greater than maximum price.");
       }
-      if(startLocation === endLocation) {
+      if (startLocation === endLocation) {
         throw new Error("Start and end locations cannot be the same.");
       }
-      if(!locations.includes(startLocation) || !locations.includes(endLocation)) {
+      if (
+        !locations.includes(startLocation) ||
+        !locations.includes(endLocation)
+      ) {
         throw new Error("Invalid location.");
       }
     } catch (error) {
