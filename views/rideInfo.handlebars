@@ -3,6 +3,7 @@
 		document.title = "Ride Info";
 	</script>
 	<h1 class="text-2xl font-bold text-blue-600 mb-6">{{ride.carType}}</h1>
+	<h2>{{ride.description}}</h2>
 
 	{{#if isError}}
 	<p class="error">{{error}}</p>
@@ -21,13 +22,16 @@
 			<dd>{{ride.time}}</dd>
 
 			<dt>Locations</dt>
-			<dd>{{ride.startLocation}} to {{ride.endLocation}}</dd>
+			<dd>{{ride.origin}} to {{ride.destination}}</dd>
 
 			<dt>Available seats</dt>
-			<dd>{{ride.seatsAvailable}}</dd>
+			<dd>{{ride.seats}}</dd>
 
 			<dt>Price (per seat)</dt>
-			<dd>${{ride.price}}</dd>
+			<dd>${{ride.amount}}</dd>
+
+			<dt>Est. duration</dt>
+			<dd>{{ride.estimatedDuration}}</dd>
 
 			<dt>Cancelled?</dt>
 			{{#if ride.isAvailable}}
