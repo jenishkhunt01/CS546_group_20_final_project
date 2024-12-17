@@ -49,7 +49,7 @@ router.post("/", ensureAuthenticated, async (req, res) => {
 
     await rideRequestsCollection.insertOne(request);
 
-    res.redirect("/dashboard",{ showNav: true });
+    res.redirect("/dashboard");
   } catch (err) {
     console.error("Error requesting ride:", err);
     res.status(500).render("error", {
