@@ -209,11 +209,12 @@ router.get("/profile", ensureAuthenticated, async (req, res) => {
   }
 });
 
-router.get("/rideinfo/:id", ensureAuthenticated, (req, res) => {
+router.get("/rideinfo/:id", ensureAuthenticated, async (req, res) => {
   try {
+    const ride = await rideData.getRide(req.params.id)
     res.render("rideInfo", {
       title: "Ride Info",
-      ride: rideData.getRide(req.params.id),
+      ride: ride,
       isError: false,
       booked: false,
       showNav: true,
@@ -225,9 +226,9 @@ router.get("/rideinfo/:id", ensureAuthenticated, (req, res) => {
     });
   }
 });
-router.post("/rideinfo/:id", ensureAuthenticated, (req, res) => {
+router.post("/rideinfo/:id", ensureAuthenticated, async (req, res) => {
   try {
-    bookRide(req.params.id, req.session.user._id);
+    await bookRide(req.params.id, req.session.user._id);
     return res.redirect("/rideinfo", {
       isError: false,
       booked: true
