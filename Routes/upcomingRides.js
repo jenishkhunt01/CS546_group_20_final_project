@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import { sendEmail } from "./utils/mailer.js";
 import cron from "node-cron";
 import usersData from "../data/users.js";
+import { chatCleanup } from "./utils/chatCleanup.js";
 
 const router = express.Router();
 
@@ -164,6 +165,7 @@ router.post("/finish/:rideId", ensureAuthenticated, async (req, res) => {
     });
 
     await ridePostCollection.deleteOne({ _id: new ObjectId(rideId) });
+    await chatCleanup();
 
     res.redirect("/upcomingRides", { showNav: true });
   } catch (err) {
