@@ -1,5 +1,5 @@
-<div class="requested-rides-container">
-  <h1 class="page-title">Requested Rides</h1>
+<main class="rider-chats-container">
+  <h1 class="page-title">Your Chats</h1>
 
   {{#if chats.length}}
     <ul class="chat-list">
@@ -7,7 +7,8 @@
         <li class="chat-item">
           <div class="chat-details">
             <h2 class="chat-title">
-              <strong>Driver:</strong> {{driver}}
+              <strong>Driver:</strong>
+              {{driver}}
             </h2>
             <p><strong>Origin:</strong> {{ride.origin}}</p>
             <p><strong>Destination:</strong> {{ride.destination}}</p>
@@ -28,4 +29,4 @@
   {{else}}
     <p class="no-chats-message">You have no chats at the moment.</p>
   {{/if}}
-</div>
+</main>
